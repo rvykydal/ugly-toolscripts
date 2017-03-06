@@ -9,6 +9,7 @@ update="yes"
 default="yes"
 bootopts=""
 edit="no"
+infer_target="yes"
 
 pxecfg_dir="/tftpboot/linux-install/pxelinux.cfg"
 images_subdir="test/rv/scripted"
@@ -30,6 +31,7 @@ while getopts ":dxt:m:b:e" opt; do
       ;;
     t)
       echo "-t $OPTARG - pxe target"
+      infer_target="no"
       target=$OPTARG
       ;;
     m)
@@ -97,7 +99,7 @@ mac_cfg=01-$(echo "$mac" | tr '[:upper:]' '[:lower:]' | tr ':' '-')
 cfg_file=${pxecfg_dir}/${mac_cfg} 
 url=$1
 
-if [[ "$url" =~ "\/([^\/]*)\/compose\/" ]]; then
+if [[ ${infer_target} == "yes" && "$url" =~ "\/([^\/]*)\/compose\/" ]]; then
   target=${BASH_REMATCH[1]}
   echo "Inferred copose id target ${target } from url."
 fi
