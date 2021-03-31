@@ -11,9 +11,9 @@ bootopts=""
 edit="no"
 infer_target="yes"
 
-pxecfg_dir="/tftpboot/linux-install/pxelinux.cfg"
-images_subdir="test/rv/scripted"
-images_dir="/tftpboot/linux-install/${images_subdir}"
+pxecfg_dir="/var/lib/tftpboot/linux-install/pxelinux.cfg"
+images_subdir="test/users/rv/scripted"
+images_dir="/var/lib/tftpboot/linux-install/${images_subdir}"
 
 while getopts ":dxt:m:b:e" opt; do
   case $opt in
@@ -70,14 +70,14 @@ if [[ $# -lt 1 && "${edit}" == "no" ]]; then
 fi
 
 case $machine in
-  scratch2)
-    mac="52:54:00:08:2e:48"
+  rv_test)
+    mac="52:54:00:9f:21:28"
     ;;
-  test)
-    mac="52:54:00:fa:fb:48"
+  rv_test2)
+    mac="52:54:00:5d:bf:04"
     ;;
-  gasoline)
-    mac="f4:ce:46:2c:44:7a"
+  rv_test3)
+    mac="52:54:00:05:ce:f4"
     ;;
   *)
     if [[ "$machine" =~ "^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$" ]]; then
@@ -130,7 +130,7 @@ if [[ $edit == "yes" ]]; then
   exit 0
 fi
 
-egrep -q '^label '${target} ${cfg_file}
+egrep -q '^label '${target}'$' ${cfg_file}
 if [[ $? == 0 ]]; then
   if [[ "${update}" == "yes" ]]; then
     echo "Target exists, updating repo="
@@ -157,8 +157,10 @@ if [[ ! -d ${target_images_dir} ]]; then
 fi
 
 echo "Downloading kernel and initrd."
-wget ${url}/images/pxeboot/vmlinuz -O ${target_images_dir}/vmlinuz
-wget ${url}/images/pxeboot/initrd.img -O ${target_images_dir}/initrd.img
+#wget ${url}/images/pxeboot/vmlinuz -O ${target_images_dir}/vmlinuz
+#wget ${url}/images/pxeboot/initrd.img -O ${target_images_dir}/initrd.img
+curl -L ${url}/images/pxeboot/vmlinuz --output ${target_images_dir}/vmlinuz
+curl -L ${url}/images/pxeboot/initrd.img --output ${target_images_dir}/initrd.img
 
 if [[ ${default} == "yes" ]]; then
   echo "Setting as default target."
