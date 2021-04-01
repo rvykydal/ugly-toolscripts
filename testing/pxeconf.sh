@@ -12,6 +12,7 @@ edit="no"
 infer_target="yes"
 
 pxecfg_dir="/var/lib/tftpboot/linux-install/pxelinux.cfg"
+machine_dir="${pxecfg_dir}/users.cfg/rv/machines"
 images_subdir="test/users/rv/scripted"
 images_dir="/var/lib/tftpboot/linux-install/${images_subdir}"
 
@@ -77,7 +78,7 @@ case $machine in
     mac="52:54:00:5d:bf:04"
     ;;
   rv_test3)
-    mac="52:54:00:05:ce:f4"
+    mac="52:54:00:12:d8:4f"
     ;;
   *)
     if [[ "$machine" =~ "^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$" ]]; then
@@ -96,7 +97,7 @@ esac
 mac_cfg=01-$(echo "$mac" | tr '[:upper:]' '[:lower:]' | tr ':' '-')
 
 
-cfg_file=${pxecfg_dir}/${mac_cfg} 
+cfg_file=${machine_dir}/${mac_cfg}
 url=$1
 
 if [[ ${infer_target} == "yes" && "$url" =~ "\/([^\/]*)\/compose\/" ]]; then
@@ -169,4 +170,14 @@ fi
 
 echo ${cfg_file}
 egrep '^DEFAULT' ${cfg_file}
+
+symlink_file=${pxecfg_dir}/${mac_cfg}
+if [[ -e ${symlink_file} ]]; then
+  echo "WARNING: File ${symlink_file} exists, should be a symlink!"
+else
+  if [[ ! -L ${symlink_file} ]]; then
+    echo "Creating symlink ${symlink_file}"
+    ln -s ./users.cfg/rv/machines/${mac_cfg}  ${symlink_file}
+  fi
+fi
 
