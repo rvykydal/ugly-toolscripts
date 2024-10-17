@@ -17,18 +17,43 @@
 
 
 UUID=`uuid`
-TAG=${1:-vi_$UUID}
+NAME=${1:-rvm-$UUID}
+
+CONFIG_FILE=${NAME}.rvm
+
+source $CONFIG_FILE
 
 BOOT_ISO=${BOOT_ISO:-boot.iso}
 
-RAM=2048
-CPUS=1
+RAM=${RAM:-2048}
+CPUS=${CPUS:-1}
 
-echo Tag: ${TAG}
-echo Iso: ${BOOT_ISO}
+_RANDOM_N=$((10 + $RANDOM % 90))
+RANDOM_SSH_ADDR=127.0.0.${_RANDOM_N}
+RANDOM_SSH_PORT=22${_RANDOM_N}
+SSH_ADDR=${SSH_ADDR:-$RANDOM_SSH_ADDR}
+SSH_PORT=${SSH_PORT:-$RANDOM_SSH_PORT}
+
+if [ ! -f ${CONFIG_FILE} ]; then
+    echo Creating configuration file ${CONFIG_FILE}
+    touch ${CONFIG_FILE}
+fi
+
+grep ^SSH_ADDR= ${CONFIG_FILE} || echo Adding SSH_ADDR to config file; echo "SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${CONFIG_FILE}
+grep ^SSH_PORT= ${CONFIG_FILE} || echo Adding SSH_PORT to config file; echo "SSH_PORT=${RANDOM_SSH_PORT}" >> ${CONFIG_FILE}
+
+cat << EOF
+config:   ${CONFIG_FILE}
+NAME:     ${NAME}
+RAM:      ${RAM}
+CPUS:     ${CPUS}
+BOOT_ISO: ${BOOT_ISO}
+SSH_ADDR: ${SSH_ADDR}
+SSH_PORT: ${SSH_PORT}
+EOF
 
 virt-install \
-        --name ${TAG} \
+        --name ${NAME} \
         --memory ${RAM} \
         --noautoconsole \
         --connect "qemu:///session" \
@@ -37,12 +62,14 @@ virt-install \
         --osinfo require=off,detect=on \
         --graphics vnc,listen=0.0.0.0 \
         --video virtio \
-        --network user,model=virtio \
         --extra-args "inst.sshd inst.debug debug=1" \
         --location ./${BOOT_ISO},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
         --disk none \
+        --network none \
+        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${SSH_ADDR}:${SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16"
+#        --network user,model=virtio \
 #        --boot uefi \
-#        --initrd-inject ks.${TAG}.cfg \
+#        --initrd-inject ks.${NAME}.cfg \
 #       --disk \
 
 # network: user or bridge or solution from machine_install.py
