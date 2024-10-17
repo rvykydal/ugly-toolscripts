@@ -102,3 +102,5 @@ virt-install \
 
 #virt-install ['-n', 'kstest-reboot-uefi_(1efabf86-677d-4644-b904-3de70cf756c7)', '-r', '2048', '--noautoconsole', '--vcpus', '1', '--rng', '/dev/random', '--osinfo', 'require=off,detect=on', '--graphics', 'vnc,listen=0.0.0.0', '--video', 'virtio', '--initrd-inject', '/opt/kstest/kickstart-tests/reboot-uefi.ks', '--disk', 'path=/var/tmp/kstest-reboot-uefi.2024_10_15-15_02_43.jhcdqmz4/disk-a.img,cache=unsafe,bus=virtio', '--network', 'user,model=virtio', '--disk', 'path=/var/tmp/kstest-reboot-uefi.2024_10_15-15_02_43.jhcdqmz4/boot.iso,device=cdrom,readonly=on,shareable=on', '--boot', 'uefi', '--extra-args', 'inst.ks=file:/reboot-uefi.ks debug=1 inst.debug rd.shell=0 rd.emergency=poweroff inst.kernel.hung_task_timeout_secs=1200 inst.stage2=hd:CDLABEL=Fedora-E-dvd-x86_64-rawh', '--location', '/var/tmp/kstest-reboot-uefi.2024_10_15-15_02_43.jhcdqmz4/boot.iso,kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img', '--channel', 'tcp,host=127.0.0.1:45987,mode=connect,target_type=virtio,name=org.fedoraproject.anaconda.log.0', '--wait', '30']
 
+
+virt-viewer $NAME &
