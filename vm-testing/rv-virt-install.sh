@@ -17,7 +17,15 @@
 
 
 UUID=`uuid`
+
+if [ -z $1 ]; then
+    echo "Usage: $0 <NAME> [info|force]"
+    exit 1
+fi
+
 NAME=${1:-rvm-$UUID}
+
+CMD=${2}
 
 CONFIG_FILE=${NAME}.rvm
 
@@ -39,10 +47,11 @@ if [ ! -f ${CONFIG_FILE} ]; then
     touch ${CONFIG_FILE}
 fi
 
-grep ^SSH_ADDR= ${CONFIG_FILE} || echo Adding SSH_ADDR to config file; echo "SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${CONFIG_FILE}
-grep ^SSH_PORT= ${CONFIG_FILE} || echo Adding SSH_PORT to config file; echo "SSH_PORT=${RANDOM_SSH_PORT}" >> ${CONFIG_FILE}
+grep -q ^SSH_ADDR= ${CONFIG_FILE} || echo "SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${CONFIG_FILE}
+grep -q ^SSH_PORT= ${CONFIG_FILE} || echo "SSH_PORT=${RANDOM_SSH_PORT}" >> ${CONFIG_FILE}
 
 cat << EOF
+----------
 config:   ${CONFIG_FILE}
 NAME:     ${NAME}
 RAM:      ${RAM}
@@ -50,7 +59,23 @@ CPUS:     ${CPUS}
 BOOT_ISO: ${BOOT_ISO}
 SSH_ADDR: ${SSH_ADDR}
 SSH_PORT: ${SSH_PORT}
+----------
 EOF
+
+if [ "$CMD" == "info" ]; then
+    virsh dominfo $NAME
+    exit
+fi
+
+if [[ $(virsh dominfo $NAME) ]]; then
+    echo "Domain '$NAME' already exists."
+    if [ "$CMD" == "force" ]; then
+        virsh destroy $NAME
+        virsh undefine $NAME
+    else
+        exit 1
+    fi
+fi
 
 virt-install \
         --name ${NAME} \
@@ -66,7 +91,8 @@ virt-install \
         --location ./${BOOT_ISO},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
         --disk none \
         --network none \
-        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${SSH_ADDR}:${SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16"
+        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${SSH_ADDR}:${SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16" \
+        --extra-args "${EXTRA_ARGS}" \
 #        --network user,model=virtio \
 #        --boot uefi \
 #        --initrd-inject ks.${NAME}.cfg \
