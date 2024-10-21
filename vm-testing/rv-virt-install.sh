@@ -106,6 +106,18 @@ if [ ${KS_FROM_HTTP} ]; then
     EXTRA_KS_ARGS="inst.ks=${KS_HTTP_URL}"
 fi
 
+KS_ISO=rvm_ks.iso
+KS_ISO_FILE=ks.cfg
+if [ ${KS_FROM_CDROM} ]; then
+    echo "Passing kickstart '$KS' via CDROM './$KS_ISO'"
+    cp $KS ${KS_ISO_FILE}
+    mkisofs -V RVM_KS -o $KS_ISO ${KS_ISO_FILE}
+    echo "Configuring CDROM with kickstart to be used"
+    EXTRA_KS_ARGS="inst.ks=cdrom:sr1:/${KS_ISO_FILE}"
+    KS_CDROM_OPTION="--disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on"
+fi
+
+
 set +x
 
 virt-install \
@@ -126,6 +138,8 @@ virt-install \
         --extra-args "${EXTRA_ARGS}" \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
+        ${KS_CDROM_OPTION}
+#        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
 #        --initrd-inject ks.${NAME}.cfg \
