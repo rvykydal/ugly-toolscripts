@@ -129,6 +129,20 @@ if [ ${STAGE2_FROM_NFS} ]; then
     STAGE2_ARG=inst.stage2=nfs:10.43.136.2:/mnt/data/users/rv/s2/rvm
 fi
 
+if [ ${UPDATES_IMG} ]; then
+    UPDATES_IMG_NAME="updates.${RVM_CONFIG}${UPDATES_IMG_TAG}.img"
+    UPDATES_IMG_URL="http://10.43.136.2/users/rv/${UPDATES_IMG_NAME}"
+    echo "Using updates image ${UPDATES_IMG_URL}"
+    if [ ${UPDATES_IMG} == "refresh" ]; then
+        echo "Refreshing updates image."
+        cd ${UPDATES_IMG_PATH}
+        eval ${UPDATES_IMG_CMD}
+        scp updates.img 10.43.136.2:/mnt/data/users/rv/${UPDATES_IMG_NAME}
+        cd -
+    fi
+    UPDATES_IMG_ARG="inst.updates=${UPDATES_IMG_URL}"
+fi
+
 set +x
 
 virt-install \
@@ -151,6 +165,7 @@ virt-install \
         --extra-args "${EXTRA_KS_ARGS}" \
         ${KS_CDROM_OPTION} \
         --extra-args ${STAGE2_ARG} \
+        --extra-args ${UPDATES_IMG_ARG} \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
