@@ -19,18 +19,15 @@
 UUID=`uuid`
 
 if [ -z $1 ]; then
-    echo "Usage: $0 <NAME> [info|force]"
+    echo "Usage: $0 <RVM_CONFIG> [info|force]"
     ls -1 *.rvm
     exit 1
 fi
 
-NAME=${1:-rvm-$UUID}
-
+RVM_CONFIG=${1:-$UUID.rvm}
 CMD=${2}
 
-CONFIG_FILE=${NAME}.rvm
-
-source $CONFIG_FILE
+source $RVM_CONFIG
 
 BOOT_ISO=${BOOT_ISO:-boot.iso}
 
@@ -43,21 +40,21 @@ RANDOM_SSH_PORT=22${_RANDOM_N}
 SSH_ADDR=${SSH_ADDR:-$RANDOM_SSH_ADDR}
 SSH_PORT=${SSH_PORT:-$RANDOM_SSH_PORT}
 
-if [ ! -f ${CONFIG_FILE} ]; then
-    echo Creating configuration file ${CONFIG_FILE}
-    touch ${CONFIG_FILE}
+if [ ! -f ${RVM_CONFIG} ]; then
+    echo Creating configuration file ${RVM_CONFIG}
+    touch ${RVM_CONFIG}
 fi
 
-grep -q ^SSH_ADDR= ${CONFIG_FILE} || echo "SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${CONFIG_FILE}
-grep -q ^SSH_PORT= ${CONFIG_FILE} || echo "SSH_PORT=${RANDOM_SSH_PORT}" >> ${CONFIG_FILE}
+grep -q ^SSH_ADDR= ${RVM_CONFIG} || echo "SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${RVM_CONFIG}
+grep -q ^SSH_PORT= ${RVM_CONFIG} || echo "SSH_PORT=${RANDOM_SSH_PORT}" >> ${RVM_CONFIG}
 
-echo ------ Config file ${CONFIG_FILE}
-cat ${CONFIG_FILE}
+echo ------ Config file ${RVM_CONFIG}
+cat ${RVM_CONFIG}
 echo ------
 
 if [ "$CMD" == "info" ]; then
-    echo ------ virsh dominfo $NAME
-    virsh dominfo $NAME
+    echo ------ virsh dominfo $RVM_CONFIG
+    virsh dominfo $RVM_CONFIG
     echo ------
     echo ------ kickstart $KS
     cat ${KS}
@@ -71,22 +68,22 @@ if [ "$CMD" == "ks" ]; then
 fi
 
 if [ "$CMD" == "conf" ]; then
-    $EDITOR ${CONFIG_FILE}
+    $EDITOR ${RVM_CONFIG}
     exit 0
 fi
 
-if [[ $(virsh dominfo $NAME) ]]; then
-    echo "Domain '$NAME' already exists."
+if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
+    echo "Domain '$RVM_CONFIG' already exists."
     if [ "$CMD" == "force" ]; then
-        echo "Removing '$NAME'"
-        virsh destroy $NAME
-        virsh undefine $NAME
+        echo "Removing '$RVM_CONFIG'"
+        virsh destroy $RVM_CONFIG
+        virsh undefine $RVM_CONFIG
     else
         exit 1
     fi
 fi
 
-KS_FILE="ks.${NAME}.rvm.cfg"
+KS_FILE="ks.${RVM_CONFIG}.cfg"
 
 if [ ${KS_FROM_FILE} ]; then
     echo "Injecting kickstart '$KS' via './$KS_FILE'"
@@ -135,7 +132,7 @@ fi
 set +x
 
 virt-install \
-        --name ${NAME} \
+        --name ${RVM_CONFIG} \
         --memory ${RAM} \
         --noautoconsole \
         --connect "qemu:///session" \
@@ -157,7 +154,7 @@ virt-install \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
-#        --initrd-inject ks.${NAME}.cfg \
+#        --initrd-inject ks.${RVM_CONFIG}.cfg \
 #       --disk \
 
 set -x
@@ -171,4 +168,4 @@ set -x
 #virt-install ['-n', 'kstest-reboot-uefi_(1efabf86-677d-4644-b904-3de70cf756c7)', '-r', '2048', '--noautoconsole', '--vcpus', '1', '--rng', '/dev/random', '--osinfo', 'require=off,detect=on', '--graphics', 'vnc,listen=0.0.0.0', '--video', 'virtio', '--initrd-inject', '/opt/kstest/kickstart-tests/reboot-uefi.ks', '--disk', 'path=/var/tmp/kstest-reboot-uefi.2024_10_15-15_02_43.jhcdqmz4/disk-a.img,cache=unsafe,bus=virtio', '--network', 'user,model=virtio', '--disk', 'path=/var/tmp/kstest-reboot-uefi.2024_10_15-15_02_43.jhcdqmz4/boot.iso,device=cdrom,readonly=on,shareable=on', '--boot', 'uefi', '--extra-args', 'inst.ks=file:/reboot-uefi.ks debug=1 inst.debug rd.shell=0 rd.emergency=poweroff inst.kernel.hung_task_timeout_secs=1200 inst.stage2=hd:CDLABEL=Fedora-E-dvd-x86_64-rawh', '--location', '/var/tmp/kstest-reboot-uefi.2024_10_15-15_02_43.jhcdqmz4/boot.iso,kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img', '--channel', 'tcp,host=127.0.0.1:45987,mode=connect,target_type=virtio,name=org.fedoraproject.anaconda.log.0', '--wait', '30']
 
 
-virt-viewer $NAME &
+virt-viewer $RVM_CONFIG &

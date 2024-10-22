@@ -1,19 +1,17 @@
 #!/bin/bash
 
 # rv-virt-ssh.sh
-# rv-virt-ssh.sh /bin/bash -s < script.sh argument
+# rv-virt-ssh.sh edns1.rvm /bin/bash -s < script.sh argument
 #
 
 if [ -z ${1} ]; then
-    echo "usage: $0 <NAME>"
+    echo "usage: $0 <RVM_CONFIG>"
 fi
 
-NAME=$1
+RVM_CONFIG=$1
 shift
 
-CONFIG_FILE=${NAME}.rvm
+source ${RVM_CONFIG}
 
-source ${CONFIG_FILE}
-
-echo SSH connecting to machine ${NAME} ${SSH_ADDR}:${SSH_PORT}
+echo SSH connecting to machine ${RVM_CONFIG} ${SSH_ADDR}:${SSH_PORT}
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p ${SSH_PORT} root@${SSH_ADDR} $@
