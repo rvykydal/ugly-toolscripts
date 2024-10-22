@@ -29,7 +29,7 @@ if [ ! -z $RVM_CONFIG ]; then
 
     if [ ! -z "$LOGS_CMD" ]; then
         echo "Running pre logs cmd '$LOGS_CMD'"
-        ./rv-virt-ssh.sh $RVM_CONFIG $LOGS_CMD
+        rv-virt-ssh $RVM_CONFIG $LOGS_CMD
     fi
 
     echo "Downloading logs '${LABEL}' from '$RVM_CONFIG'"
