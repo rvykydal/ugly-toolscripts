@@ -117,6 +117,20 @@ if [ ${KS_FROM_CDROM} ]; then
     KS_CDROM_OPTION="--disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on"
 fi
 
+MNT_DIR=rvm_mntdir
+
+# sudo mount -t nfs -oro,nfsvers=3,nolock 10.43.136.2:/mnt/data/users/rv/s2/rvm m
+if [ ${STAGE2_FROM_NFS} ]; then
+    if [ ${STAGE2_FROM_NFS} == "reload" ]; then
+        echo "Uploading install.img."
+        mkdir ${MNT_DIR}
+        sudo mount ${BOOT_ISO} ${MNT_DIR}
+        scp ${MNT_DIR}/images/install.img 10.43.136.2:/mnt/data/users/rv/s2/rvm/images
+        sudo umount ${MNT_DIR}
+        rmdir ${MNT_DIR}
+    fi
+    STAGE2_ARG=inst.stage2=nfs:10.43.136.2:/mnt/data/users/rv/s2/rvm
+fi
 
 set +x
 
@@ -138,7 +152,8 @@ virt-install \
         --extra-args "${EXTRA_ARGS}" \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
-        ${KS_CDROM_OPTION}
+        ${KS_CDROM_OPTION} \
+        --extra-args ${STAGE2_ARG} \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
