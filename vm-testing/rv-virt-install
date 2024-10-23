@@ -30,6 +30,9 @@ CMD=${2}
 source $RVM_CONFIG
 
 BOOT_ISO=${BOOT_ISO:-boot.iso}
+RVM_BOOT_ISO=${RVM_CONFIG}.boot.iso
+echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO}"
+cp ${BOOT_ISO} ${RVM_BOOT_ISO}
 
 RAM=${RAM:-2048}
 CPUS=${CPUS:-1}
@@ -77,11 +80,14 @@ if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     if [ "$CMD" == "force" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG
+        virsh undefine $RVM_CONFIG --remove-all-storage
     else
         exit 1
     fi
 fi
+
+echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO}"
+cp ${BOOT_ISO} ${RVM_BOOT_ISO}
 
 KS_FILE="ks.${RVM_CONFIG}.cfg"
 
@@ -121,7 +127,7 @@ if [ ${STAGE2_FROM_NFS} ]; then
     if [ ${STAGE2_FROM_NFS} == "reload" ]; then
         echo "Uploading install.img."
         mkdir ${MNT_DIR}
-        sudo mount ${BOOT_ISO} ${MNT_DIR}
+        sudo mount ${RVM_BOOT_ISO} ${MNT_DIR}
         scp ${MNT_DIR}/images/install.img 10.43.136.2:/mnt/data/users/rv/s2/rvm/images
         sudo umount ${MNT_DIR}
         rmdir ${MNT_DIR}
@@ -143,7 +149,13 @@ if [ ${UPDATES_IMG} ]; then
     UPDATES_IMG_ARG="--extra-args inst.updates=${UPDATES_IMG_URL}"
 fi
 
-set +x
+for size in $DISKS; do
+    filename=$(mktemp --suffix .${RVM_CONFIG}.qcow2 disk-XXXX)
+    echo "Created disk $filename with size $size"
+    qemu-img create -f qcow2 ${filename} ${size}
+    DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=virtio,cache=unsafe "
+done
+
 
 virt-install \
         --name ${RVM_CONFIG} \
@@ -156,7 +168,7 @@ virt-install \
         --graphics vnc,listen=0.0.0.0 \
         --video virtio \
         --extra-args "inst.sshd inst.debug debug=1" \
-        --location ./${BOOT_ISO},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
+        --location ./${RVM_BOOT_ISO},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
         --disk none \
         --network none \
         --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${SSH_ADDR}:${SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16" \
@@ -166,13 +178,12 @@ virt-install \
         ${KS_CDROM_OPTION} \
         ${STAGE2_ARG} \
         ${UPDATES_IMG_ARG} \
+        ${DISKS_ARGS} \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
 #        --initrd-inject ks.${RVM_CONFIG}.cfg \
 #       --disk \
-
-set -x
 
 # network: user or bridge or solution from machine_install.py
 
