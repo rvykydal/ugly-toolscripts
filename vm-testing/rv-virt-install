@@ -126,7 +126,7 @@ if [ ${STAGE2_FROM_NFS} ]; then
         sudo umount ${MNT_DIR}
         rmdir ${MNT_DIR}
     fi
-    STAGE2_ARG=inst.stage2=nfs:10.43.136.2:/mnt/data/users/rv/s2/rvm
+    STAGE2_ARG="--extra-args inst.stage2=nfs:10.43.136.2:/mnt/data/users/rv/s2/rvm"
 fi
 
 if [ ${UPDATES_IMG} ]; then
@@ -140,7 +140,7 @@ if [ ${UPDATES_IMG} ]; then
         scp updates.img 10.43.136.2:/mnt/data/users/rv/${UPDATES_IMG_NAME}
         cd -
     fi
-    UPDATES_IMG_ARG="inst.updates=${UPDATES_IMG_URL}"
+    UPDATES_IMG_ARG="--extra-args inst.updates=${UPDATES_IMG_URL}"
 fi
 
 set +x
@@ -164,8 +164,8 @@ virt-install \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
         ${KS_CDROM_OPTION} \
-        --extra-args ${STAGE2_ARG} \
-        --extra-args ${UPDATES_IMG_ARG} \
+        ${STAGE2_ARG} \
+        ${UPDATES_IMG_ARG} \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
