@@ -6,6 +6,7 @@
 # virsh list
 # virsh list-all
 # virsh dominfo
+# virsh domblkinfo
 # virsh domstate
 
 # virsh start
@@ -13,6 +14,7 @@
 # virsh stop
 # virsh destroy
 # virsh undefine
+# virsh undefine --remove-all-storage
 # virsh dumpxml
 
 
@@ -77,6 +79,12 @@ fi
 
 if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     echo "Domain '$RVM_CONFIG' already exists."
+    if [ "$CMD" == "remove" ]; then
+        echo "Removing '$RVM_CONFIG'"
+        virsh destroy $RVM_CONFIG
+        virsh undefine $RVM_CONFIG --remove-all-storage
+        exit 0
+    fi
     if [ "$CMD" == "force" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
