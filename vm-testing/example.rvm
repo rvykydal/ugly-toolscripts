@@ -1,0 +1,31 @@
+BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-fedora_rawhide.iso
+#BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel10.iso
+#BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel9.iso
+
+SSH_ADDR=127.0.0.73
+SSH_PORT=2273
+LOGS_CMD="journalctl -a > /tmp/jctl.log"
+RAM=3500
+
+#EXTRA_ARGS="${EXTRA_ARGS} ip=dhcp"
+#EXTRA_ARGS="${EXTRA_ARGS} rd.debug"
+#EXTRA_ARGS="${EXTRA_ARGS} console=ttyS0"
+#EXTRA_ARGS="${EXTRA_ARGS} inst.net.noautodefault"
+# Shell in dracut on tty9
+#EXTRA_ARGS="${EXTRA_ARGS} rd.systemd.debug_shell"
+#EXTRA_ARGS="${EXTRA_ARGS} rd.break=pre-pivot"
+
+#KS="/home/rvykydal/work/kickstarts/ks.unattended.cfg"
+KS_FROM_HTTP=1
+#KS_FROM_FILE=1
+#KS_FROM_CDROM=1
+
+DISKS="10G"
+
+#STAGE2_FROM_NFS=reload
+#STAGE2_FROM_NFS=1
+
+#UPDATES_IMG=refresh
+#UPDATES_IMG_TAG=1
+#UPDATES_IMG_PATH=~/work/git/rvykydal/anaconda
+#UPDATES_IMG_CMD=scripts/makeupdates
