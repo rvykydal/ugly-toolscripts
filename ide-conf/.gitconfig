@@ -1,0 +1,28 @@
+[user]
+	name = Radek Vykydal
+	email = rvykydal@redhat.com
+[color]
+	pager = true
+	ui = auto
+	branch = auto
+	diff = auto
+	status = auto
+[merge]
+	tool = vimdiff
+[sendemail]
+	smtpserver = smtp.corp.redhat.com
+	smtpserverport = 587
+	smtpdomain = prnot2
+[alias]
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+	lgv = log --color --graph --pretty=format:'%C(yellow)%h%d %C(bold blue)%cn%C(reset) %C(green)(%cr)%n%C(red)Author: %C(reset)%an%n%C(red)Date:   %C(reset)%ai%n%n%w(0,4,4)%s%n%n%w(0,4,4)%b'
+	recent-branches = for-each-ref --sort=-committerdate --count=25 --format='%(refname:short)' refs/heads/
+
+[core]
+	editor = vim
+[credential "https://github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
