@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -eux
+
+if [[ $# -ne 2 ]];then
+    echo "Exactly 2 parameters are required" >&2
+    echo "" >&2
+    echo "Usage: ./iso-get-file.sh path/to/boot.iso path/to/file" >&2
+    exit 1
+fi
+
+IMAGE="$1"
+FILE="$2"
+
+# Probe boot.iso → install.img → stage 2 and dig out useful information from it.
+ISO_TMP=$(mktemp -d /tmp/kstest-iso.XXXXXXX)
+trap "rm -rf '$ISO_TMP'" EXIT INT QUIT PIPE
+
+# Extract install.img
+# Try Fedora directory structure (isoinfo does not fail on nonexisting files)
+isoinfo -R -i "$IMAGE" -x /images/install.img > "$ISO_TMP/install.img"
+if [ ! -s "$ISO_TMP/install.img" ]; then
+    # Try RHEL-7 directory structure
+    isoinfo -R -i "$IMAGE" -x /LiveOS/squashfs.img > "$ISO_TMP/install.img"
+    if [ ! -s "$ISO_TMP/install.img" ]; then
+        echo "Error: Did not find install image inside $IMAGE" >&2
+        exit 3
+    fi
+fi
+
+ROOTFS=/LiveOS/rootfs.img
+
+unsquashfs -no-xattrs -follow -no-progress -d "$ISO_TMP/stage2" "$ISO_TMP/install.img" $FILE $ROOTFS
+rm "$ISO_TMP/install.img"
+chmod -R a+w $ISO_TMP
+
+if [ -e "$ISO_TMP/stage2$FILE" ]; then
+    cp "$ISO_TMP/stage2$FILE" .
+else
+    # On RHEL-8 and RHEL-9 the filesystem is packed in ext4 image (ENGCMP-766)
+    timeout -k 10s 30s virt-cat -a "$ISO_TMP/stage2$ROOTFS" $FILE > ./$(basename $FILE)
+    if [ $? -eq 124 ]; then
+        echo "Error: virt-cat timed out" >&2
+        exit 4
+    fi
+fi
