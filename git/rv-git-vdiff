@@ -1,0 +1,24 @@
+#!/bin/sh
+
+TEMPDIR=/tmp
+
+if [[ $# < 3 ]]; then
+	echo "usage: $0 <ref1> <ref2> <filename>"
+	exit
+fi
+
+REF1=$1
+REF2=$2
+FILE=$3
+
+FILEA=$TEMPDIR/$REF1:`basename $FILE`
+FILEB=$TEMPDIR/$REF2:`basename $FILE`
+
+git show $REF1:$FILE > $FILEA
+git show $REF2:$FILE > $FILEB
+
+meld $FILEB $FILEA
+#vimdiff $FILEB $FILEA
+
+unlink $FILEA
+unlink $FILEB

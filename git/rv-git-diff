@@ -1,0 +1,57 @@
+#!/usr/bin/python
+
+import sys
+import subprocess
+from optparse import OptionParser
+
+if __name__ == "__main__":
+    usage = ("usage: %prog [ref1 [ref2]]\n\n"
+             "       default ref1: HEAD\n"
+             "       default ref2: ref1^\n")
+    parser = OptionParser(usage)
+    (options, args) = parser.parse_args(sys.argv[1:])
+
+    arg2 = None
+    if len(args) > 1:
+        arg2 = args[1]
+    if len(args):
+        ref1 = args[0]
+
+    try:
+        ref1 = args[0]
+    except IndexError:
+        ref1 = "HEAD"
+    try:
+        ref2 = args[1]
+    except IndexError:
+        ref2 = ref1+"^"
+
+    # UGH, ugly!!!
+    cmd = ['git', 'log', "--pretty=oneline", "--abbrev-commit", ref2+'..'+ref1]
+    gitlog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf8")
+    (commits_info, stderrdata) = gitlog.communicate()
+
+    cmd = ['git', 'diff', ref1, ref2, '--name-only']
+    gitdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf8")
+    (stdoutdata, stderrdata) = gitdiff.communicate()
+    filenames = stdoutdata.strip('\n').split('\n')
+    table = ""
+    for key, file in enumerate(filenames):
+        table += "    %s - %s\n" % (key, file)
+    table += "    q - QUIT\n"
+
+    uinput='start'
+    while uinput not in ["Q", "q"]:
+        print(commits_info)
+        print(table)
+        uinput = input('Select file: ')
+        try:
+            filename = filenames[int(uinput)]
+        except (ValueError,IndexError):
+            pass
+        else:
+            cmd = ['gvdiff.sh', ref1, ref2, filename]
+            vimdiff = subprocess.Popen(cmd)
+            #vimdiff.wait()
+
+
