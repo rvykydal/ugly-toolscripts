@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export CREATE_IMAGE=1
+./test/webui_testvm.py --efi fedora-rawhide-boot | tee webui-run.out

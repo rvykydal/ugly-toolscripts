@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -x
+
+ANACONDA_REPO=/home/rvykydal/work/git/rvykydal/anaconda
+ANACONDA_UPDATES=${ANACONDA_REPO}/updates.img
+WORK_DIR=updupd
+
+pushd ${ANACONDA_REPO}
+scripts/makeupdates
+popd
+
+cp ${ANACONDA_UPDATES} updates.anaconda.img
+
+rm -rf ${WORK_DIR}
+mkdir ${WORK_DIR}
+
+pushd ${WORK_DIR}
+gzip -dc ../updates.webui.img | cpio -id
+tree . > ../tree.updates.webui.img.txt
+gzip -dc ../updates.anaconda.img | cpio -idu
+tree . > ../tree.updates.img.txt
+find . | cpio -c -o | gzip -9cv > ../updates.img
+popd

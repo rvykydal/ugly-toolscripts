@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# webui-run.sh
+# webui-ssh.sh /bin/bash -s < ~/work/git/rvykydal/webui-tools/test-scripts/webui-btrfssub-dup.sh /dev/vda
+
+ssh_cmd=`grep ^ssh webui-run.out`
+if [[ ! -z ${ssh_cmd} ]]; then
+    ${ssh_cmd} "$@"
+else
+    echo "Not running / ssh access not available."
+fi
