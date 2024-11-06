@@ -1,0 +1,403 @@
+#!/usr/bin/python3
+#
+# Copyright (C) 2023  Red Hat, Inc.
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# the GNU General Public License v.2, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY expressed or implied, including the implied warranties of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.  You should have received a copy of the
+# GNU General Public License along with this program; if not, write to the
+# Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.  Any Red Hat trademarks that are incorporated in the
+# source code or documentation are not subject to the GNU General Public
+# License and may only be used or replicated with the express permission of
+# Red Hat, Inc.
+
+import argparse
+import subprocess
+import sys
+import re
+
+
+ISSUES = [
+    {
+        "description": "<ISSUE DESCRIPTION PREFERABLY WITH GITHUB ISSUE REFERENCE>",
+        "first_grep": "<REGULAR EXPRESSION FOR GREP TO BE LOOKED FOR>",
+        "last_anaconda_re": "<REGULAR EXPRESSION FOR PYTHON TO BE MATCHED AGAINST THE LAST LINE IN THE LOG CONTAINING 'anaconda:'>",
+    },
+    {
+        "description": "[675] ([1]) https://github.com/rhinstaller/kickstart-tests/issues/675",
+        "last_anaconda_re": ".*Configuring \\(running scriptlet for\\): rootfiles.*",
+    },
+# Superseded by the last_anaconda_re check
+#    {
+#        # The detection may be improved, not sure if just with grep.
+#        "description": "[675] ([1]) https://github.com/rhinstaller/kickstart-tests/issues/675 The string is also in successful installation, but there is high chance that for test which times out it will be this issue.",
+#        "first_grep": "Failed to start man-db-cache-update.service: Unit man-db-cache-update.service not found.",
+#        # Context of this line can be useful as well
+#        # "INFO anaconda:dnf: Running transaction check",
+#    },
+    {
+        "description": "[TODO] https://github.com/rhinstaller/kickstart-tests/issues/TODO",
+        "first_grep": "^[^E]*ERR anaconda:dnf: Error in POSTIN scriptlet in rpm package coreutils-common"
+    },
+    {
+        "description": "[6] - for rebooting tests it can be rather [675] or something else, so check. Look at kstest.log, libvirt log.",
+        "first_grep": "RESULT.*Problem starting virtual install",
+    },
+    {
+        "description": "[694] ([4]) https://github.com/rhinstaller/kickstart-tests/issues/694",
+        "first_grep": "Nothing useful found for Hard drive ISO",
+    },
+    {
+        "description": "[992] https://github.com/rhinstaller/kickstart-tests/issues/992 - or it can some more recent issue, the string is pretty generic.",
+        "first_grep": "Started Process Core Dump",
+    },
+    {
+        "description": "[846] on rhel8 ([26]) https://github.com/rhinstaller/kickstart-tests/issues/846",
+        "first_grep": "raise.*Failed to activate service 'org.freedesktop.hostname1'",
+    },
+    {
+        "description": "[767] ([758]) https://github.com/rhinstaller/kickstart-tests/issues/767",
+        "first_grep": "Payload error.*Failed to download metadata for repo",
+    },
+    {
+        "description": "[846] on rhel8 ([26]) https://github.com/rhinstaller/kickstart-tests/issues/846",
+        "first_grep": "Network.*Failed to activate service 'org.freedesktop.hostname1'",
+    },
+    {
+        "description": "[786] https://github.com/rhinstaller/kickstart-tests/issues/786",
+        "first_grep": "Traceback.*Failed to activate swap on /dev/md/test-raid-ddf_0p2: No such file or directory",
+    },
+    {
+        "description": "[859] https://github.com/rhinstaller/kickstart-tests/issues/859",
+        "first_grep": "Failed to activate filesystems: invalid device specification",
+    },
+    {
+        "description": "[845] https://github.com/rhinstaller/kickstart-tests/issues/845",
+        "first_grep": "INFO lvmdbusd:KeyError: 'pv_uuid'",
+    },
+    {
+        "description": "[889] raid-ddf https://github.com/rhinstaller/kickstart-tests/issues/889",
+        "first_grep": "SwapError: Failed to open the device '/dev/md/test-raid-ddf_0p2'",
+    },
+    {
+        "description": "[890] default-systemd-target-vnc-graphical https://github.com/rhinstaller/kickstart-tests/issues/890",
+        "first_grep": "gnome-kiosk exited on signal 11",
+    },
+    {
+        "description": "[857] resource to create this format lvmpv is unavailable https://github.com/rhinstaller/kickstart-tests/issues/857",
+        "first_grep": "ERROR.*resource to create this format lvmpv is unavailable",
+    },
+    {
+        "description": "[894] rpm-ostree https://github.com/rhinstaller/kickstart-tests/issues/894",
+        "first_grep": "PayloadInstallationError: Failed to pull from repository.*Timeout was reached",
+    },
+    {
+        "description": "[TODO1] The DNF payload failed https://github.com/rhinstaller/kickstart-tests/issues/",
+        "first_grep": "The DNF payload failed",
+    },
+    {
+        "description": "[949] infrastructure https://github.com/rhinstaller/kickstart-tests/issues/949",
+        "first_grep": "Failed to add the 'anaconda' repository",
+    },
+    {
+        "description": "[962] https://github.com/rhinstaller/kickstart-tests/issues/962",
+        "first_grep": "BUG: soft lockup",
+    },
+    {
+        "description": "[964] Validation failed and no RESULT - another string https://github.com/rhinstaller/kickstart-tests/issues/964",
+        "first_grep": "/root/RESULT does not exist in VM image.",
+    },
+    {
+        "description": "[930] [939] [794] [782] https://github.com/rhinstaller/kickstart-tests/issues/930",
+        "first_grep": "lvmdbusd:json.decoder.JSONDecodeError:",
+    },
+    {
+        "description": "[985] https://github.com/rhinstaller/kickstart-tests/issues/985",
+        "first_grep": "WARNING.*Problem 1.*python3-dnf",
+    },
+    {
+        "description": "[984] https://github.com/rhinstaller/kickstart-tests/issues/984",
+        "first_grep": "RESULT.*CRIT.*Anaconda crashed on signal 11",
+    },
+    {
+        "description": "[983] https://github.com/rhinstaller/kickstart-tests/issues/983",
+        "first_grep": "CRIT.*argument of type 'NoneType' is not iterable",
+    },
+    {
+        "description": "[993] https://github.com/rhinstaller/kickstart-tests/issues/993",
+        "first_grep": "WARNING.*nothing provides.*getent",
+    },
+    {
+        "description": "[997] https://github.com/rhinstaller/kickstart-tests/issues/997",
+        "first_grep": "CRIT.*gnome-kiosk exited with status 1",
+    },
+    {
+        "description": "[1035] https://github.com/rhinstaller/kickstart-tests/issues/1035",
+        "first_grep": "CRIT.*UnavailableValueError: The kernel version list is not available.",
+    },
+    {
+        "description": "[1039] https://github.com/rhinstaller/kickstart-tests/issues/1039",
+        "first_grep": "WARNING.*requires /usr/bin/readlink, but none of the providers can be installed",
+    },
+    {
+        "description": "[996] https://github.com/rhinstaller/kickstart-tests/issues/996",
+        "first_grep": "CRIT.*dasbus.error.DBusError: Process reported exit code 2: mdadm: /dev/vda3 is busy - skipping",
+    },
+    {
+        "description": "[1060] https://github.com/rhinstaller/kickstart-tests/issues/1060",
+        "first_grep": "CRIT.*pyanaconda.ui.gui.xkl_wrapper.XklWrapperError: Failed to initialize layouts",
+    },
+    {
+        "description": "[907] https://github.com/rhinstaller/kickstart-tests/issues/907",
+        "first_grep": "ERROR:anaconda.modules.storage.partitioning.base_partitioning:Storage configuration has failed: No usable disks.",
+    },
+    {
+        "description": "[1017] https://github.com/rhinstaller/kickstart-tests/issues/1017",
+        "last_anaconda_re": ".*DEBUG anaconda:anaconda: ui.gui.hubs: kickstart installation, spoke Installation Source is ready.*"
+    },
+    {
+        "description": "[1235] https://github.com/rhinstaller/kickstart-tests/issues/1235",
+        "first_grep": "org.fedoraproject.Anaconda.Modules.Localization.GetCompositorSelectedLayout has failed with an exception",
+    },
+    {
+        "description": "[1261] https://github.com/rhinstaller/kickstart-tests/issues/1261",
+        "first_grep": "anaconda:anaconda: display: Wayland startup failed: systemd exited with status 1",
+    },
+    {
+        "description": "[1261] https://github.com/rhinstaller/kickstart-tests/issues/1261",
+        "first_grep": "anaconda:anaconda: display: Wayland startup failed: /usr/libexec/anaconda/run-in-new-session exited with status 1",
+    },
+    {
+        "description": "[11] https://github.com/rhinstaller/kickstart-tests/issues/795",
+        "first_grep": "ERR.*Timeout trying to start Xorg",
+    },
+    {
+        "description": "[1296] https://github.com/rhinstaller/kickstart-tests/issues/1296",
+        "first_grep": "ERR anaconda:Exception ignored in atexit callback",
+    },
+    {
+        "description": "[1303] https://github.com/rhinstaller/kickstart-tests/issues/1303",
+        "first_grep": "WARNING gnome-kiosk:Lost or failed to acquire name org.gnome.Mutter.ServiceChannel",
+    },
+    {
+        "description": "[886] https://github.com/rhinstaller/kickstart-tests/issues/886",
+        "first_grep": "/dev/vda4 shouldn't be mounted at",
+    },
+    {
+        "description": "[1311] https://github.com/rhinstaller/kickstart-tests/issues/1311",
+        "first_grep": "LVMError.*'/com/redhat/lvmdbus1/.*object: Timeout was reached",
+    },
+    {
+        "description": "[1312] https://github.com/rhinstaller/kickstart-tests/issues/1312",
+        "first_grep": "org.fedoraproject.Anaconda.Modules.Storage:gi.overrides.BlockDev.MpathError: Process reported exit code 1",
+    },
+    {
+        "description": "[1313] https://github.com/rhinstaller/kickstart-tests/issues/1313",
+        "first_grep": "ERR anaconda:    display.setup_display(anaconda, opts)",
+    },
+    {
+        "description": "[1314] https://github.com/rhinstaller/kickstart-tests/issues/1314",
+        "first_grep": "CRIT kernel:virtio_net virtio1 enp1s0: NETDEV WATCHDOG: CPU: 0: transmit queue 0 timed out",
+    },
+    {
+        "description": "[1318] https://github.com/rhinstaller/kickstart-tests/issues/1318",
+        "first_grep": "anaconda:anaconda: display: X or window manager startup failed: systemd exited with status 1",
+    },
+    {
+        "description": "[1319] https://github.com/rhinstaller/kickstart-tests/issues/1319",
+        "first_grep": "Anaconda.Modules.Payloads:ERROR:dnf.rpm:Error in POSTIN scriptlet in rpm package",
+    },
+]
+
+CLOSED_ISSUES = [
+    # Tracked in [1311]
+    {
+        "description": "[1202] https://github.com/rhinstaller/kickstart-tests/issues/1202",
+        "first_grep": "Failed to call the 'PvCreate' method on the '/com/redhat/lvmdbus1/Manager' object: Timeout was reached",
+    },
+    # Tracked in [1311]
+    {
+        "description": "[869] https://github.com/rhinstaller/kickstart-tests/issues/869",
+        "first_grep": "CRIT.*Failed to call the 'Snapshot' method on the '/com/redhat/lvmdbus1/Lv/1' object: Timeout was reached"
+    },
+    {
+        "description": "[9] RHSM https://github.com/rhinstaller/kickstart-tests/issues/707",
+        "first_grep": "DBusError: {\"exception\": \"NoSectionError\", \"severity\": \"error\", \"message\": \"No section: 'logging'\"}",
+    },
+    {
+        "description": "[780] RHSM https://github.com/rhinstaller/kickstart-tests/issues/780",
+        "first_grep": "rhsm-service:ERROR.*argument of type 'Undefined' is not iterable",
+    },
+    {
+        "description": "[779] RHSM https://github.com/rhinstaller/kickstart-tests/issues/779",
+        "first_grep": "rhsm-service:ERROR.*'Undefined' object is not iterable",
+    },
+    {
+        "description": "[5] https://bugzilla.redhat.com/show_bug.cgi?id=1931389",
+        "first_grep": "Network:.*Fatal.*Segmentation fault",
+    },
+    {
+        "description": "[24] package download failure, may be infra hiccup?",
+        "first_grep": "Failed to download.*Curl error",
+    },
+    {
+        "description": "[759] https://github.com/rhinstaller/kickstart-tests/issues/759",
+        "first_grep": "Validation.*Your BIOS-based system",
+    },
+    {
+        "description": "[879] https://github.com/rhinstaller/kickstart-tests/issues/879",
+        "first_grep": "INFO:program:/usr/sbin/grub2-probe: error: ../grub-core/kern/disk.c:236",
+    },
+    {
+        "description": "[882] blivet DMTech https://github.com/rhinstaller/kickstart-tests/issues/882",
+        "first_grep": "AttributeError: type object 'DMTech' has no attribute 'MAP'",
+    },
+    {
+        "description": "[980] https://github.com/rhinstaller/kickstart-tests/issues/980",
+        "first_grep": "Payloads:  - nothing provides libperl",
+    },
+]
+
+
+FILTER_FILENAMES = ["kstest.log", "virt-install.log"]
+
+
+def _print_result(issue, matches):
+    result = """
+-------------------------------------------------------------------------------
+{}
+#: {}
+{}""".format(issue["description"], len(matches), "--\n".join(matches))
+    print(result.strip())
+
+
+def _find_files(args, filenames):
+    files = []
+
+    # example: find . -type f \( -name virt-install.log -o -name kstest.log \) -not -path *logs-rhel* -not -path *logs-rhel9*
+    filenames_args = []
+    if filenames:
+        filenames_args = ["("] + [option for value in zip(["-o"] * len(filenames), ["-name"] * len(filenames), filenames) for option in value ][1:] + [")"]
+    exclude_dir_args = [option for value in zip(["-not"] * len(args.exclude_dir), ["-path"] * len(args.exclude_dir), ["*{}*".format(dir) for dir in args.exclude_dir]) for option in value ]
+
+    find = subprocess.run(
+        [
+            "find",
+            ".",
+            "-type",
+            "f",
+        ] + filenames_args + exclude_dir_args,
+        capture_output=True,
+        check=False,
+        encoding="utf8",
+    )
+    if find.stdout:
+        files = find.stdout.split()
+
+    return files
+
+
+def _get_match(issue, file_path, args):
+    match = ""
+
+    if "first_grep" in issue:
+        grep = subprocess.run(
+            [
+                "grep",
+                "-m", "1",
+                issue["first_grep"],
+                "-C", str(args.show_line_context),
+            ] + [file_path],
+            capture_output=True,
+            check=False,
+            encoding="utf8"
+        )
+        match = grep.stdout
+
+    if "last_anaconda_re" in issue:
+        last_anaconda = subprocess.check_output(
+            "grep anaconda: {} | tail -n 1".format(file_path),
+            shell=True,
+            encoding="utf8",
+        )
+        if re.match(issue["last_anaconda_re"], last_anaconda):
+            match = last_anaconda
+    return match
+
+
+def classify(args, filenames):
+
+    file_paths = _find_files(args, filenames)
+
+    for issue in ISSUES:
+        if args.filter_issue_contains not in issue["description"]:
+            continue
+
+        matches = []
+
+        for file_path in file_paths:
+            match = _get_match(issue, file_path, args)
+            if match:
+                matches.append("{}\n{}".format(file_path, match))
+
+        if matches:
+            _print_result(issue, matches)
+
+
+def cmd_cli():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""
+Classify kickstart test failures looked up in logs.
+
+Runs grep in the working directory recursively trying to match log files
+to the issues tracked in kickstart-test repository.
+
+Ideally should be run on log files tree produced by weekly_summary script
+with --archive-logs option, which is also run by kickstart-test repository
+Weekly summary workflow.
+
+Can be used also on any kickstart test logs (the names of files to be
+scanned are configurable by option) but examining logs of tests that
+passed can produce noise in some cases.""",
+        epilog="""
+EXAMPLES:
+
+  Look only for issue "[1]" and show context of 3 lines for each match:
+  {filename} --show-line-context 3 --filter-issue-contains [1]
+
+  Look only for failures (ignore flakes subdir in log path):
+  (Assumes log directory structure produced by weekly_report.)
+  {filename} --exclude-dir flakes
+
+  Look only to results of daily-iso scenario:
+  (Assumes log directory structure produced by weekly_report.)
+  {filename} --exclude-dir "logs-rhel*"
+""".format(filename=sys.argv[0])
+    )
+    parser.add_argument("-i", "--filter-issue-contains",
+                        help="only look for issues containing this substring",
+                        metavar="STRING", default="")
+    parser.add_argument("-f", "--filter-filenames",
+                        help="only look at specified log files",
+                        metavar="FILENAME", nargs="?", action='append', default=[])
+    parser.add_argument("-d", "--exclude-dir",
+                        help="exclude directories with suffix (grep API)",
+                        metavar="GLOB", nargs="?", action='append', default=[])
+    parser.add_argument("-c", "--show-line-context",
+                        help="show context of the found string",
+                        metavar="N", default=0, type=int)
+    args = parser.parse_args()
+
+    filenames = args.filter_filenames or FILTER_FILENAMES
+
+    classify(args, filenames)
+
+
+if __name__ == "__main__":
+    cmd_cli()

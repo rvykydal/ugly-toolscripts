@@ -1,0 +1,13 @@
+#!/bin/bash
+
+RELEASE=$1
+PLATFORM=rhel${RELEASE}
+
+source scripts/defaults-${PLATFORM}.sh
+BOOT_ISO_URL=${KSTEST_URL}/images/boot.iso
+
+DOWNLOAD_BOOT_ISO_URL=$(echo "$BOOT_ISO_URL" | sed "s/download.eng.bos/download.eng.brq/")
+
+sudo rm data/images/boot.iso
+sudo curl -L  "${DOWNLOAD_BOOT_ISO_URL}" --output data/images/boot.iso
+

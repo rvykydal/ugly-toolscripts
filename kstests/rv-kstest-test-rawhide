@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo containers/runner/launch -p fedora_rawhide "$@" | tee kstest-run.out

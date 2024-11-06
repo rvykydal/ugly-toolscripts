@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo containers/runner/launch --daily ~/work/git/rh-internal/gitlab/tools_credentials/github/tokens/rhel8-runners "$@" | tee kstest-run.out

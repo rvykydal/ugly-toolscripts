@@ -1,0 +1,15 @@
+#!/bin/bash
+
+PLATFORM=rhel8
+
+source scripts/defaults-${PLATFORM}.sh
+BOOT_ISO_URL=${KSTEST_URL}/images/boot.iso
+
+DOWNLOAD_BOOT_ISO_URL=$(echo "$BOOT_ISO_URL" | sed "s/download.eng.bos/download.eng.brq/")
+
+if [ ! -e data/images/boot.iso ]; then
+    sudo curl -L  "${DOWNLOAD_BOOT_ISO_URL}" --output data/images/boot.iso
+else
+    echo "Using existing data/images/boot.iso"
+fi
+sudo containers/runner/launch --platform ${PLATFORM} "$@" | tee kstest-run.out

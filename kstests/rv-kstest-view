@@ -1,0 +1,5 @@
+#!/bin/bash
+
+qemu_connection_cmd=`grep qemu+tcp kstest-run.out | tr -d '\r'`
+
+eval "$qemu_connection_cmd"
