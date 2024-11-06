@@ -1,0 +1,10 @@
+#!/bin/bash
+# BROWSER_SHORTCUT
+
+if [ -n $1 ]; then
+    URL=https://github.com/rhinstaller/anaconda/pull/$1
+else
+    URL=https://github.com/rhinstaller/anaconda/pulls
+fi
+
+firefox -new-tab $URL

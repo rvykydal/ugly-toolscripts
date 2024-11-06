@@ -1,0 +1,5 @@
+#!/bin/sh
+# BROWSER_SHORTCUT
+
+URL=https://bugzilla.redhat.com/show_bug.cgi?id=$1
+firefox -new-tab $URL

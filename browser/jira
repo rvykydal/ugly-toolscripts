@@ -1,0 +1,19 @@
+#!/bin/sh
+# BROWSER_SHORTCUT
+
+if [ -n "$1" ]; then
+    if [ "$1" == "po" ]; then
+        # Product owner dashboard
+        URL=https://issues.redhat.com/secure/Dashboard.jspa?selectPageId=12346829
+    elif [ "$1" == "retro" ]; then
+        # Retro
+        URL=https://issues.redhat.com/projects/INSTALLER/versions/12414795
+    else
+        URL=https://issues.redhat.com/browse/RHEL-$1
+    fi
+else
+    # Kanban board
+    URL="https://issues.redhat.com/secure/RapidBoard.jspa?rapidView=6749&projectKey=INSTALLER"
+fi
+
+firefox -new-tab $URL
