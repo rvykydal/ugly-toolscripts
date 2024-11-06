@@ -1,0 +1,36 @@
+#/bin/bash
+# tokens: https://github.com/settings/tokens
+
+# ansible-playbook -i ansible/inventory/ -e "instance_name=github-kstest-test-permian-3" -e labels=kstest-stage -e github_token=tools_credentials/github/tokens/rhel8-runners --skip-tags=use_copr  ansible/github-kstest-launch.yml
+
+# rvykydal fork repo
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/git/rh-internal/gitlab/builders/credentials/github/tokens/rhel8-runners -e labels=kstest-permian -e github_repo=rvykydal/kickstart-tests ansible/github-kstest-setup.yml
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/git/rh-internal/gitlab/builders/credentials/github/tokens/rhel8-runners -e labels=kstest-permian -e github_repo=rvykydal/kickstart-tests ansible/github-kstest-setup.yml
+
+# rhinstaller repo
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/git/rh-internal/gitlab/tools_credentials/github/tokens/rhel8-runners -e labels=kstest-permian -e github_repo=rhinstaller/anaconda ansible/github-kstest-setup.yml
+
+
+
+# Configure New runner (3)
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/git/rh-internal/gitlab/builders/credentials/github/tokens/rhel8-runners -e labels=kstest-stage -e github_repo=rvykydal/anaconda ansible/github-kstest-setup.yml
+
+
+# Deploy new runner (4) in rvykydal's repo
+#ansible-playbook -i ansible/inventory/ -e "instance_name=github-kstest-test-permian-4" -e labels=kstest-stage -e github_repo=rvykydal/anaconda -e github_token=/home/rvykydal/work/kstests/tokens/rv_public_repo4 --skip-tags=use_copr  ansible/github-kstest-launch.yml
+
+
+# Assign stage runner to my anaconda repo
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/kstests/tokens/rv_public_repo4 -e labels=kstest-test -e github_repo=rvykydal/anaconda ansible/github-kstest-setup.yml
+
+# Assign stage runner to my anaconda-webui repo
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/kstests/tokens/rv_public_repo4 -e labels=kstest-test -e github_repo=rvykydal/anaconda-webui ansible/github-kstest-setup.yml
+
+# Assign stage runner to my kickstart-test repo
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/kstests/tokens/rv_public_repo4 -e labels=kstest-test -e github_repo=rvykydal/kickstart-tests ansible/github-kstest-setup.yml
+
+# Assign stage runner to my anaconda repo
+#ansible-playbook -kK -i ansible/inventory/rv.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/kstests/tokens/rv_public_repo5 -e labels=kstest-test -e github_repo=rvykydal/anaconda ansible/github-kstest-setup.yml
+
+# Reregister to rhinstaller GH group:
+#ansible-playbook -u fedora --private-key ~/.ssh/runner_30 -i ansible/inventory/runner_30.yml --skip-tags use_copr -e github_token=/home/rvykydal/work/git/rh-internal/gitlab/tools_credentials/github/tokens/rhel8-runners ansible/github-kstest-setup.yml
