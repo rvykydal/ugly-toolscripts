@@ -1,0 +1,20 @@
+#!/usr/bin/python
+
+import argparse
+
+def cmd_cli():
+    parser = argparse.ArgumentParser(description="Classify kickstart test failures based on logs.")
+    parser.add_argument('filename')
+    args = parser.parse_args()
+    with open(args.filename) as logfile:
+        for line in logfile:
+            if not "Image packages" in line:
+                continue
+            else:
+                if "rsyslogd" in line:
+                    continue
+            print('\n'.join(line.split()[6:]))
+
+
+if __name__ == "__main__":
+    cmd_cli()
