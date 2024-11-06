@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo HI
+#KRB5_CONFIG=/etc/krb5.conf.openshift /usr/bin/waiverdb-cli "$@"
