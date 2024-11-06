@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+jpegs = set()
+movs_to_remove = set()
+movs_to_keep = set()
+for file in os.listdir('.'):
+    if file.endswith("JPG"):
+        jpegs.add(file[:-3])
+for file in os.listdir('.'):
+    if file.endswith("MOV"):
+        if file[:-3] in jpegs:
+            movs_to_remove.add(file)
+        else:
+            movs_to_keep.add(file)
+print("# photos: ", len(jpegs))
+print("# movs to remove: ", len(movs_to_remove))
+print("movs to keep: ", movs_to_keep)
+
+if len(sys.argv) > 1 and sys.argv[1] == "--remove":
+    for mov in movs_to_remove:
+        os.remove(mov)

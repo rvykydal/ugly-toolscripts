@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+SRCFILEPATH='/home/rvykydal/poznamky/italiano.src'
+DSTFILEPATH='/home/rvykydal/poznamky/italiano.ss'
+
+with open(SRCFILEPATH, 'r') as fr:
+    lines = [line.strip() for line in fr.readlines()]
+    couples = zip(lines[::2], lines[1::2])
+    cards = [f"{cz}#{it}" for cz, it in couples]
+with open(DSTFILEPATH, 'w') as fw:
+    for card in cards:
+        fw.write(f"{card}\n")
