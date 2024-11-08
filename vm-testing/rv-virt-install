@@ -79,16 +79,22 @@ fi
 
 if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     echo "Domain '$RVM_CONFIG' already exists."
+
     if [ "$CMD" == "remove" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
         virsh undefine $RVM_CONFIG --remove-all-storage
         exit 0
     fi
+
     if [ "$CMD" == "force" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
         virsh undefine $RVM_CONFIG --remove-all-storage
+    elif [ "$CMD" == "reuse-storage" ]; then
+        echo "Removing '$RVM_CONFIG'"
+        virsh destroy $RVM_CONFIG
+        virsh undefine $RVM_CONFIG
     else
         exit 1
     fi
