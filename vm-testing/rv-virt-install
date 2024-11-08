@@ -32,9 +32,9 @@ CMD=${2}
 source $RVM_CONFIG
 
 BOOT_ISO=${BOOT_ISO:-boot.iso}
-RVM_BOOT_ISO=${RVM_CONFIG}.boot.iso
-echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO}"
-cp ${BOOT_ISO} ${RVM_BOOT_ISO}
+RVM_BOOT_ISO_COPY=${RVM_CONFIG}.boot.iso
+echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
+cp ${BOOT_ISO} ${RVM_BOOT_ISO_COPY}
 
 RAM=${RAM:-2048}
 CPUS=${CPUS:-1}
@@ -104,8 +104,8 @@ if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     fi
 fi
 
-echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO}"
-cp ${BOOT_ISO} ${RVM_BOOT_ISO}
+echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
+cp ${BOOT_ISO} ${RVM_BOOT_ISO_COPY}
 
 KS_FILE="ks.${RVM_CONFIG}.cfg"
 
@@ -145,7 +145,7 @@ if [ ${STAGE2_FROM_NFS} ]; then
     if [ ${STAGE2_FROM_NFS} == "reload" ]; then
         echo "Uploading install.img."
         mkdir ${MNT_DIR}
-        sudo mount ${RVM_BOOT_ISO} ${MNT_DIR}
+        sudo mount ${RVM_BOOT_ISO_COPY} ${MNT_DIR}
         scp ${MNT_DIR}/images/install.img 10.43.136.2:/mnt/data/users/rv/s2/rvm/images
         sudo umount ${MNT_DIR}
         rmdir ${MNT_DIR}
@@ -215,7 +215,7 @@ virt-install \
         --graphics vnc,listen=0.0.0.0 \
         --video virtio \
         --extra-args "inst.sshd inst.debug debug=1" \
-        --location ./${RVM_BOOT_ISO},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
+        --location ./${RVM_BOOT_ISO_COPY},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
         --disk none \
         --network none \
         --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${SSH_ADDR}:${SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16" \
