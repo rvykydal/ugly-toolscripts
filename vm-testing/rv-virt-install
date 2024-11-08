@@ -233,3 +233,5 @@ virt-install \
 
 
 virt-viewer $RVM_CONFIG &
+
+# vim: tabstop=4 shiftwidth=4 expandtab
