@@ -1,36 +1,36 @@
-BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-fedora_rawhide.iso
-#BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel10.iso
-#BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel9.iso
+RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-fedora_rawhide.iso
+#RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel10.iso
+#RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel9.iso
 
-SSH_ADDR=127.0.0.73
-SSH_PORT=2273
-LOGS_CMD="journalctl -a > /tmp/jctl.log"
-RAM=3500
+RVM_SSH_ADDR=127.0.0.73
+RVM_SSH_PORT=2273
+RVM_LOGS_CMD="journalctl -a > /tmp/jctl.log"
+RVM_RAM=3500
 
-#UEFI=yes
+#RVM_UEFI=yes
 
-#EXTRA_ARGS="${EXTRA_ARGS} ip=dhcp"
-#EXTRA_ARGS="${EXTRA_ARGS} rd.debug"
-#EXTRA_ARGS="${EXTRA_ARGS} console=ttyS0"
-#EXTRA_ARGS="${EXTRA_ARGS} inst.net.noautodefault"
+#RVM_EXTRA_ARGS="${EXTRA_ARGS} ip=dhcp"
+#RVM_EXTRA_ARGS="${EXTRA_ARGS} rd.debug"
+#RVM_EXTRA_ARGS="${EXTRA_ARGS} console=ttyS0"
+#RVM_EXTRA_ARGS="${EXTRA_ARGS} inst.net.noautodefault"
 # Shell in dracut on tty9
-#EXTRA_ARGS="${EXTRA_ARGS} rd.systemd.debug_shell"
-#EXTRA_ARGS="${EXTRA_ARGS} rd.break=pre-pivot"
+#RVM_EXTRA_ARGS="${EXTRA_ARGS} rd.systemd.debug_shell"
+#RVM_EXTRA_ARGS="${EXTRA_ARGS} rd.break=pre-pivot"
 
-#KS="/home/rvykydal/work/kickstarts/ks.unattended.cfg"
-KS_FROM_HTTP=1
-#KS_FROM_FILE=1
-#KS_FROM_CDROM=1
+#RVM_KS="/home/rvykydal/work/kickstarts/ks.unattended.cfg"
+RVM_KS_FROM_HTTP=1
+#RVM_KS_FROM_FILE=1
+#RVM_KS_FROM_CDROM=1
 
-DISKS="10G::"
-#DISKS="10G:: 2G::"
-#DISKS="10G:rawhide-auto.qcow2:reuse-or-create"
-#DISKS="10G:rawhide-auto.qcow2:reuse"
+RVM_DISKS="10G::"
+#RVM_DISKS="10G:: 2G::"
+#RVM_DISKS="10G:rawhide-auto.qcow2:reuse-or-create"
+#RVM_DISKS="10G:rawhide-auto.qcow2:reuse"
 
-#STAGE2_FROM_NFS=reload
-#STAGE2_FROM_NFS=1
+#RVM_STAGE2_FROM_NFS=reload
+#RVM_STAGE2_FROM_NFS=1
 
-#UPDATES_IMG=refresh
-#UPDATES_IMG_TAG=1
-#UPDATES_IMG_PATH=~/work/git/rvykydal/anaconda
-#UPDATES_IMG_CMD=scripts/makeupdates
+#RVM_UPDATES_IMG=refresh
+#RVM_UPDATES_IMG_TAG=1
+#RVM_UPDATES_IMG_PATH=~/work/git/rvykydal/anaconda
+#RVM_UPDATES_IMG_CMD=scripts/makeupdates

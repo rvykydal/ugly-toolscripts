@@ -13,5 +13,5 @@ shift
 
 source ${RVM_CONFIG}
 
-echo SSH connecting to machine ${RVM_CONFIG} ${SSH_ADDR}:${SSH_PORT}
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p ${SSH_PORT} root@${SSH_ADDR} $@
+echo SSH connecting to machine ${RVM_CONFIG} ${RVM_SSH_ADDR}:${RVM_SSH_PORT}
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p ${RVM_SSH_PORT} root@${RVM_SSH_ADDR} $@
