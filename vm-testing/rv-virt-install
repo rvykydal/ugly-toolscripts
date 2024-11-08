@@ -31,25 +31,25 @@ CMD=${2}
 
 source $RVM_CONFIG
 
-BOOT_ISO=${BOOT_ISO:-boot.iso}
+RVM_BOOT_ISO=${RVM_BOOT_ISO:-boot.iso}
 RVM_BOOT_ISO_COPY=${RVM_CONFIG}.boot.iso
 
-RAM=${RAM:-2048}
-CPUS=${CPUS:-1}
+RVM_RAM=${RVM_RAM:-2048}
+RVM_CPUS=${RVM_CPUS:-1}
 
 _RANDOM_N=$((10 + $RANDOM % 90))
 RANDOM_SSH_ADDR=127.0.0.${_RANDOM_N}
 RANDOM_SSH_PORT=22${_RANDOM_N}
-SSH_ADDR=${SSH_ADDR:-$RANDOM_SSH_ADDR}
-SSH_PORT=${SSH_PORT:-$RANDOM_SSH_PORT}
+RVM_SSH_ADDR=${RVM_SSH_ADDR:-$RANDOM_SSH_ADDR}
+RVM_SSH_PORT=${RVM_SSH_PORT:-$RANDOM_SSH_PORT}
 
 if [ ! -f ${RVM_CONFIG} ]; then
     echo Creating configuration file ${RVM_CONFIG}
     touch ${RVM_CONFIG}
 fi
 
-grep -q ^SSH_ADDR= ${RVM_CONFIG} || echo "SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${RVM_CONFIG}
-grep -q ^SSH_PORT= ${RVM_CONFIG} || echo "SSH_PORT=${RANDOM_SSH_PORT}" >> ${RVM_CONFIG}
+grep -q ^RVM_SSH_ADDR= ${RVM_CONFIG} || echo "RVM_SSH_ADDR=${RANDOM_SSH_ADDR}" >> ${RVM_CONFIG}
+grep -q ^RVM_SSH_PORT= ${RVM_CONFIG} || echo "RVM_SSH_PORT=${RANDOM_SSH_PORT}" >> ${RVM_CONFIG}
 
 echo ------ Config file ${RVM_CONFIG}
 cat ${RVM_CONFIG}
@@ -59,14 +59,14 @@ if [ "$CMD" == "info" ]; then
     echo ------ virsh dominfo $RVM_CONFIG
     virsh dominfo $RVM_CONFIG
     echo ------
-    echo ------ kickstart $KS
-    cat ${KS}
+    echo ------ kickstart $RVM_KS
+    cat ${RVM_KS}
     echo ------
     exit 0
 fi
 
 if [ "$CMD" == "ks" ]; then
-    $EDITOR ${KS}
+    $EDITOR ${RVM_KS}
     exit 0
 fi
 
@@ -78,43 +78,43 @@ fi
 if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     echo "Domain '$RVM_CONFIG' already exists."
 
-    if [ ! -z ${UEFI} ]; then
-        NVRAM_ARG=" --nvram"
+    if [ ! -z ${RVM_UEFI} ]; then
+        nvram_arg=" --nvram"
     fi
 
     if [ "$CMD" == "remove" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG --remove-all-storage ${NVRAM_ARG}
+        virsh undefine $RVM_CONFIG --remove-all-storage ${nvram_arg}
         exit 0
     fi
 
     if [ "$CMD" == "force" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG --remove-all-storage ${NVRAM_ARG}
+        virsh undefine $RVM_CONFIG --remove-all-storage ${nvram_arg}
     elif [ "$CMD" == "reuse-storage" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG ${NVRAM_ARG}
+        virsh undefine $RVM_CONFIG ${nvram_arg}
     else
         exit 1
     fi
 fi
 
-if [ ! -f ${BOOT_ISO} ]; then
-    echo "Installer iso image (RVM_BOOT_ISO) ${BOOT_ISO} not found"
+if [ ! -f ${RVM_BOOT_ISO} ]; then
+    echo "Installer iso image (RVM_BOOT_ISO) ${RVM_BOOT_ISO} not found"
     exit 7
 else
-    echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
-    cp ${BOOT_ISO} ${RVM_BOOT_ISO_COPY}
+    echo "Copying ${RVM_BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
+    cp ${RVM_BOOT_ISO} ${RVM_BOOT_ISO_COPY}
 fi
 
 KS_FILE="ks.${RVM_CONFIG}.cfg"
 
-if [ ${KS_FROM_FILE} ]; then
-    echo "Injecting kickstart '$KS' via './$KS_FILE'"
-    cp $KS ./${KS_FILE}
+if [ ${RVM_KS_FROM_FILE} ]; then
+    echo "Injecting kickstart '$RVM_KS' via './$KS_FILE'"
+    cp $RVM_KS ./${KS_FILE}
     echo "Configuring injected kickstart to be used"
     EXTRA_KS_ARGS="inst.ks=file:/${KS_FILE}"
 else
@@ -122,19 +122,19 @@ else
     echo "Injecting '$KS_FILE'"
 fi
 
-if [ ${KS_FROM_HTTP} ]; then
+if [ ${RVM_KS_FROM_HTTP} ]; then
     KS_HTTP_URL="http://10.43.136.2/users/rv/ks/${KS_FILE}"
-    echo "Uploading kickstart $KS to $KS_HTTP_URL"
-    scp $KS 10.43.136.2:/mnt/data/users/rv/ks/${KS_FILE}
+    echo "Uploading kickstart $RVM_KS to $KS_HTTP_URL"
+    scp $RVM_KS 10.43.136.2:/mnt/data/users/rv/ks/${KS_FILE}
     echo "Configuring uploaded kickstart to be used"
     EXTRA_KS_ARGS="inst.ks=${KS_HTTP_URL}"
 fi
 
 KS_ISO=rvm_ks.iso
 KS_ISO_FILE=ks.cfg
-if [ ${KS_FROM_CDROM} ]; then
-    echo "Passing kickstart '$KS' via CDROM './$KS_ISO'"
-    cp $KS ${KS_ISO_FILE}
+if [ ${RVM_KS_FROM_CDROM} ]; then
+    echo "Passing kickstart '$RVM_KS' via CDROM './$KS_ISO'"
+    cp $RVM_KS ${KS_ISO_FILE}
     mkisofs -V RVM_KS -o $KS_ISO ${KS_ISO_FILE}
     echo "Configuring CDROM with kickstart to be used"
     EXTRA_KS_ARGS="inst.ks=cdrom:sr1:/${KS_ISO_FILE}"
@@ -144,8 +144,8 @@ fi
 MNT_DIR=rvm_mntdir
 
 # sudo mount -t nfs -oro,nfsvers=3,nolock 10.43.136.2:/mnt/data/users/rv/s2/rvm m
-if [ ${STAGE2_FROM_NFS} ]; then
-    if [ ${STAGE2_FROM_NFS} == "reload" ]; then
+if [ ${RVM_STAGE2_FROM_NFS} ]; then
+    if [ ${RVM_STAGE2_FROM_NFS} == "reload" ]; then
         echo "Uploading install.img."
         mkdir ${MNT_DIR}
         sudo mount ${RVM_BOOT_ISO_COPY} ${MNT_DIR}
@@ -156,24 +156,24 @@ if [ ${STAGE2_FROM_NFS} ]; then
     STAGE2_ARG="--extra-args inst.stage2=nfs:10.43.136.2:/mnt/data/users/rv/s2/rvm"
 fi
 
-if [ ${UPDATES_IMG} ]; then
-    UPDATES_IMG_NAME="updates.${RVM_CONFIG}${UPDATES_IMG_TAG}.img"
+if [ ${RVM_UPDATES_IMG} ]; then
+    UPDATES_IMG_NAME="updates.${RVM_CONFIG}${RVM_UPDATES_IMG_TAG}.img"
     UPDATES_IMG_URL="http://10.43.136.2/users/rv/${UPDATES_IMG_NAME}"
     echo "Using updates image ${UPDATES_IMG_URL}"
-    if [ ${UPDATES_IMG} == "refresh" ]; then
+    if [ ${RVM_UPDATES_IMG} == "refresh" ]; then
         echo "Refreshing updates image."
-        cd ${UPDATES_IMG_PATH}
-        eval ${UPDATES_IMG_CMD}
+        cd ${RVM_UPDATES_IMG_PATH}
+        eval ${RVM_UPDATES_IMG_CMD}
         scp updates.img 10.43.136.2:/mnt/data/users/rv/${UPDATES_IMG_NAME}
         cd -
     fi
     UPDATES_IMG_ARG="--extra-args inst.updates=${UPDATES_IMG_URL}"
 fi
 
-for disk in $DISKS; do
-    size=$(echo $DISKS | cut -d":" -f1)
-    filename=$(echo $DISKS | cut -d":" -f2)
-    action=$(echo $DISKS | cut -d":" -f3)
+for disk in $RVM_DISKS; do
+    size=$(echo $RVM_DISKS | cut -d":" -f1)
+    filename=$(echo $RVM_DISKS | cut -d":" -f2)
+    action=$(echo $RVM_DISKS | cut -d":" -f3)
     if [ -z ${filename} ]; then
         filename=$(mktemp --suffix .${RVM_CONFIG}.qcow2 disk-XXXX)
         echo "Creating disk $filename with size $size"
@@ -202,17 +202,17 @@ for disk in $DISKS; do
     DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=virtio,cache=unsafe "
 done
 
-if [ ! -z ${UEFI} ]; then
+if [ ! -z ${RVM_UEFI} ]; then
     UEFI_ARG="--boot uefi"
 fi
 
 
 virt-install \
         --name ${RVM_CONFIG} \
-        --memory ${RAM} \
+        --memory ${RVM_RAM} \
         --noautoconsole \
         --connect "qemu:///session" \
-        --vcpus ${CPUS} \
+        --vcpus ${RVM_CPUS} \
         --rng /dev/random \
         --osinfo require=off,detect=on \
         --graphics vnc,listen=0.0.0.0 \
@@ -221,8 +221,8 @@ virt-install \
         --location ./${RVM_BOOT_ISO_COPY},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
         --disk none \
         --network none \
-        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${SSH_ADDR}:${SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16" \
-        --extra-args "${EXTRA_ARGS}" \
+        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16" \
+        --extra-args "${RVM_EXTRA_ARGS}" \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
         ${KS_CDROM_OPTION} \
