@@ -163,13 +163,37 @@ if [ ${UPDATES_IMG} ]; then
     UPDATES_IMG_ARG="--extra-args inst.updates=${UPDATES_IMG_URL}"
 fi
 
-for size in $DISKS; do
-    filename=$(mktemp --suffix .${RVM_CONFIG}.qcow2 disk-XXXX)
-    echo "Created disk $filename with size $size"
-    qemu-img create -f qcow2 ${filename} ${size}
+for disk in $DISKS; do
+    size=$(echo $DISKS | cut -d":" -f1)
+    filename=$(echo $DISKS | cut -d":" -f2)
+    action=$(echo $DISKS | cut -d":" -f3)
+    if [ -z ${filename} ]; then
+        filename=$(mktemp --suffix .${RVM_CONFIG}.qcow2 disk-XXXX)
+        echo "Creating disk $filename with size $size"
+        qemu-img create -f qcow2 ${filename} ${size}
+    else
+        if [ "${action}" == "reuse" ]; then
+            if [ ! -e ${filename} ]; then
+                echo "Disk $filename to be reused not found"
+                exit 8
+            fi
+            echo "Reusing disk $filename"
+        elif [ "${action}" == "reuse-or-create" ]; then
+            if [ ! -e ${filename} ]; then
+                echo "Creating disk $filename with size $size"
+                qemu-img create -f qcow2 ${filename} ${size}
+            fi
+        else
+            if [ -e ${filename} ]; then
+                echo "Disk $filename already exists, use 'reuse' or remove it"
+                exit 9
+            fi
+            echo "Creating disk $filename with size $size"
+            qemu-img create -f qcow2 ${filename} ${size}
+        fi
+    fi
     DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=virtio,cache=unsafe "
 done
-
 
 virt-install \
         --name ${RVM_CONFIG} \
