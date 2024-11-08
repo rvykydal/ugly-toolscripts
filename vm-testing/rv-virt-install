@@ -80,21 +80,25 @@ fi
 if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     echo "Domain '$RVM_CONFIG' already exists."
 
+    if [ ! -z ${UEFI} ]; then
+        NVRAM_ARG=" --nvram"
+    fi
+
     if [ "$CMD" == "remove" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG --remove-all-storage
+        virsh undefine $RVM_CONFIG --remove-all-storage ${NVRAM_ARG}
         exit 0
     fi
 
     if [ "$CMD" == "force" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG --remove-all-storage
+        virsh undefine $RVM_CONFIG --remove-all-storage ${NVRAM_ARG}
     elif [ "$CMD" == "reuse-storage" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
-        virsh undefine $RVM_CONFIG
+        virsh undefine $RVM_CONFIG ${NVRAM_ARG}
     else
         exit 1
     fi
@@ -195,6 +199,11 @@ for disk in $DISKS; do
     DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=virtio,cache=unsafe "
 done
 
+if [ ! -z ${UEFI} ]; then
+    UEFI_ARG="--boot uefi"
+fi
+
+
 virt-install \
         --name ${RVM_CONFIG} \
         --memory ${RAM} \
@@ -217,6 +226,7 @@ virt-install \
         ${STAGE2_ARG} \
         ${UPDATES_IMG_ARG} \
         ${DISKS_ARGS} \
+        ${UEFI_ARG} \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \
