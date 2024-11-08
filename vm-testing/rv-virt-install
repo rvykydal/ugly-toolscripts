@@ -33,8 +33,6 @@ source $RVM_CONFIG
 
 BOOT_ISO=${BOOT_ISO:-boot.iso}
 RVM_BOOT_ISO_COPY=${RVM_CONFIG}.boot.iso
-echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
-cp ${BOOT_ISO} ${RVM_BOOT_ISO_COPY}
 
 RAM=${RAM:-2048}
 CPUS=${CPUS:-1}
@@ -104,8 +102,13 @@ if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
     fi
 fi
 
-echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
-cp ${BOOT_ISO} ${RVM_BOOT_ISO_COPY}
+if [ ! -f ${BOOT_ISO} ]; then
+    echo "Installer iso image (RVM_BOOT_ISO) ${BOOT_ISO} not found"
+    exit 7
+else
+    echo "Copying ${BOOT_ISO} to ${RVM_BOOT_ISO_COPY}"
+    cp ${BOOT_ISO} ${RVM_BOOT_ISO_COPY}
+fi
 
 KS_FILE="ks.${RVM_CONFIG}.cfg"
 
