@@ -7,6 +7,8 @@ SSH_PORT=2273
 LOGS_CMD="journalctl -a > /tmp/jctl.log"
 RAM=3500
 
+#UEFI=yes
+
 #EXTRA_ARGS="${EXTRA_ARGS} ip=dhcp"
 #EXTRA_ARGS="${EXTRA_ARGS} rd.debug"
 #EXTRA_ARGS="${EXTRA_ARGS} console=ttyS0"
@@ -20,7 +22,10 @@ KS_FROM_HTTP=1
 #KS_FROM_FILE=1
 #KS_FROM_CDROM=1
 
-DISKS="10G"
+DISKS="10G::"
+#DISKS="10G:: 2G::"
+#DISKS="10G:rawhide-auto.qcow2:reuse-or-create"
+#DISKS="10G:rawhide-auto.qcow2:reuse"
 
 #STAGE2_FROM_NFS=reload
 #STAGE2_FROM_NFS=1
