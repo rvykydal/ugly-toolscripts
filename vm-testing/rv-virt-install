@@ -206,6 +206,15 @@ if [ ! -z ${RVM_UEFI} ]; then
     UEFI_ARG="--boot uefi"
 fi
 
+if [ ! -z ${RVM_INJECT_SCRIPT} ]; then
+    RVM_INJECT_DIR=./dracut-updates
+    RVM_INJECT_TARBALL=dracut-update.tar.gz
+    export RVM_INJECT_DIR
+    export RVM_INJECT_TARBALL
+    eval ${RVM_INJECT_SCRIPT}${RVM_INJECT_SCRIPT_OPTS}
+    INJECT_DIR_TARBALL_ARG=" --initrd-inject ${RVM_INJECT_DIR}/${RVM_INJECT_TARBALL}"
+    INJECT_DIR_SCRIPT_ARG=" --initrd-inject ${RVM_INJECT_SCRIPT}"
+fi
 
 virt-install \
         --name ${RVM_CONFIG} \
@@ -230,6 +239,8 @@ virt-install \
         ${UPDATES_IMG_ARG} \
         ${DISKS_ARGS} \
         ${UEFI_ARG} \
+        ${INJECT_DIR_TARBALL_ARG} \
+        ${INJECT_DIR_SCRIPT_ARG} \
 #        --disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on \
 #        --network user,model=virtio \
 #        --boot uefi \

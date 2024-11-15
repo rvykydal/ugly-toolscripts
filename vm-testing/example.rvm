@@ -34,3 +34,6 @@ RVM_DISKS="10G::"
 #RVM_UPDATES_IMG_TAG=1
 #RVM_UPDATES_IMG_PATH=~/work/git/rvykydal/anaconda
 #RVM_UPDATES_IMG_CMD=scripts/makeupdates
+
+#RVM_INJECT_SCRIPT=./upd-dracut.sh
+#RVM_INJECT_SCRIPT_OPTS=" l"
