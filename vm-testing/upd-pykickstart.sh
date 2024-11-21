@@ -1,7 +1,9 @@
 rm -rf ./updates/*
 
-GIT_BRANCH=KKoukiou-certificates-download
-PYKICKSTART_GIT=/home/rvykydal/work/features/edns-certs/pykickstart
+#GIT_BRANCH=KKoukiou-certificates-download
+# adds --category
+GIT_BRANCH=${RVM_PYKICKSTART_TAG:-edns-cert-initramfs}
+PYKICKSTART_GIT=${RVM_PYKICKSTART_DIR:-/home/rvykydal/work/features/edns-certs/pykickstart}
 UPDATES_DIR=updates/usr/lib/python3.13/site-packages/pykickstart
 
 mkdir -p ${UPDATES_DIR}/commands

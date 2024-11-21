@@ -34,9 +34,13 @@ RVM_DISKS="10G::"
 #RVM_UPDATES_IMG_TAG=1
 #RVM_UPDATES_IMG_PATH=~/work/git/rvykydal/anaconda
 #RVM_UPDATES_IMG_CMD=scripts/makeupdates
+#RVM_UPDATES_IMG_CMD="git checkout edns-certs-initramfs; scripts/makeupdates"
+#RVM_PYKICKSTART_DIR=/home/rvykydal/work/features/edns-certs/pykickstart
+#RVM_PYKICKSTART_TAG=edns-cert-initramfs
+#RVM_UPDATES_IMG_CMD="git checkout edns-certs-initramfs; export RVM_PYKICKSTART_TAG ; export RVM_PYKICKSTART_DIR ; ./upd-pykickstart.sh; ./upd-services.sh"
 
 #RVM_INJECT_SCRIPT=./upd-dracut.sh
-#RVM_INJECT_SCRIPT_OPTS=" l"
+#RVM_INJECT_SCRIPT_OPTS=" local"
 
 #RVM_NOVIEWER
 
