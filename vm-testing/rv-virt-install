@@ -43,6 +43,16 @@ RANDOM_SSH_PORT=22${_RANDOM_N}
 RVM_SSH_ADDR=${RVM_SSH_ADDR:-$RANDOM_SSH_ADDR}
 RVM_SSH_PORT=${RVM_SSH_PORT:-$RANDOM_SSH_PORT}
 
+
+RVM_HTTP_SERVER_KS_SCP=${RVM_HTTP_SERVER_KS_SCP:-10.43.136.2:/mnt/data/users/rv/ks/}
+RVM_HTTP_SERVER_KS_GET=${RVM_HTTP_SERVER_KS_GET:-10.43.136.2/users/rv/ks/}
+RVM_HTTP_SERVER_UPD_SCP=${RVM_HTTP_SERVER_UPD_SCP:-10.43.136.2:/mnt/data/users/rv/}
+RVM_HTTP_SERVER_UPD_GET=${RVM_HTTP_SERVER_UPD_GET:-10.43.136.2/users/rv/}
+
+RVM_NFS_SERVER_SCP=${RVM_NFS_SERVER_KS_SCP:-10.43.136.2:/mnt/data/users/rv/s2/rvm/images}
+RVM_NFS_SERVER_ARG=${RVM_NFS_SERVER_ARG:-10.43.136.2:/mnt/data/users/rv/s2/rvm}
+
+
 if [ ! -f ${RVM_CONFIG} ]; then
     echo Creating configuration file ${RVM_CONFIG}
     touch ${RVM_CONFIG}
@@ -123,9 +133,9 @@ else
 fi
 
 if [ ${RVM_KS_FROM_HTTP} ]; then
-    KS_HTTP_URL="http://10.43.136.2/users/rv/ks/${KS_FILE}"
+    KS_HTTP_URL="http://${RVM_HTTP_SERVER_KS_GET}${KS_FILE}"
     echo "Uploading kickstart $RVM_KS to $KS_HTTP_URL"
-    scp $RVM_KS 10.43.136.2:/mnt/data/users/rv/ks/${KS_FILE}
+    scp $RVM_KS ${RVM_HTTP_SERVER_KS_SCP}${KS_FILE}
     echo "Configuring uploaded kickstart to be used"
     EXTRA_KS_ARGS="inst.ks=${KS_HTTP_URL}"
 fi
@@ -149,22 +159,22 @@ if [ ${RVM_STAGE2_FROM_NFS} ]; then
         echo "Uploading install.img."
         mkdir ${MNT_DIR}
         sudo mount ${RVM_BOOT_ISO_COPY} ${MNT_DIR}
-        scp ${MNT_DIR}/images/install.img 10.43.136.2:/mnt/data/users/rv/s2/rvm/images
+        scp ${MNT_DIR}/images/install.img ${RVM_NFS_SERVER_SCP}
         sudo umount ${MNT_DIR}
         rmdir ${MNT_DIR}
     fi
-    STAGE2_ARG="--extra-args inst.stage2=nfs:10.43.136.2:/mnt/data/users/rv/s2/rvm"
+    STAGE2_ARG="--extra-args inst.stage2=nfs:${RVM_NFS_SERVER_ARG}"
 fi
 
 if [ ${RVM_UPDATES_IMG} ]; then
     UPDATES_IMG_NAME="updates.${RVM_CONFIG}${RVM_UPDATES_IMG_TAG}.img"
-    UPDATES_IMG_URL="http://10.43.136.2/users/rv/${UPDATES_IMG_NAME}"
+    UPDATES_IMG_URL="http://${RVM_HTTP_SERVER_UPD_GET}${UPDATES_IMG_NAME}"
     echo "Using updates image ${UPDATES_IMG_URL}"
     if [ ${RVM_UPDATES_IMG} == "refresh" ]; then
         echo "Refreshing updates image."
         cd ${RVM_UPDATES_IMG_PATH}
         eval ${RVM_UPDATES_IMG_CMD}
-        scp updates.img 10.43.136.2:/mnt/data/users/rv/${UPDATES_IMG_NAME}
+        scp updates.img ${RVM_HTTP_SERVER_UPD_SCP}${UPDATES_IMG_NAME}
         cd -
     fi
     UPDATES_IMG_ARG="--extra-args inst.updates=${UPDATES_IMG_URL}"
