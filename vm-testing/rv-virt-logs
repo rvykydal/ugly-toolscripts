@@ -36,6 +36,7 @@ if [ ! -z $RVM_CONFIG ]; then
     rsync -avzh -e "ssh -p $RVM_SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" root@$RVM_SSH_ADDR:/tmp/*log $DIR
     rsync -avzh -e "ssh -p $RVM_SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" root@$RVM_SSH_ADDR:/tmp/anaconda* $DIR
     rsync -avzh -e "ssh -p $RVM_SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" root@$RVM_SSH_ADDR:/run/install/ks.cfg $DIR
+    rsync -avzh -e "ssh -p $RVM_SSH_PORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" root@$RVM_SSH_ADDR:/mnt/sysimage/root/*.cfg $DIR
     #rsync -avzh -e "ssh -p $RVM_SSH_PORT" root@$SSH_ADDR:/mnt/sysimage/root/*.cfg $DIR
 fi
 
