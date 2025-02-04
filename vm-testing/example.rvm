@@ -9,13 +9,13 @@ RVM_RAM=3500
 
 #RVM_UEFI=yes
 
-#RVM_EXTRA_ARGS="${EXTRA_ARGS} ip=dhcp"
-#RVM_EXTRA_ARGS="${EXTRA_ARGS} rd.debug"
-#RVM_EXTRA_ARGS="${EXTRA_ARGS} console=ttyS0"
-#RVM_EXTRA_ARGS="${EXTRA_ARGS} inst.net.noautodefault"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} ip=dhcp"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.debug"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} console=ttyS0"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} inst.net.noautodefault"
 # Shell in dracut on tty9
-#RVM_EXTRA_ARGS="${EXTRA_ARGS} rd.systemd.debug_shell"
-#RVM_EXTRA_ARGS="${EXTRA_ARGS} rd.break=pre-pivot"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.systemd.debug_shell"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.break=pre-pivot"
 
 #RVM_KS="/home/rvykydal/work/kickstarts/ks.unattended.cfg"
 RVM_KS_FROM_HTTP=1
