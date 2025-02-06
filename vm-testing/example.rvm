@@ -42,6 +42,9 @@ RVM_DISKS="10G::"
 #RVM_INJECT_SCRIPT=./upd-dracut.sh
 #RVM_INJECT_SCRIPT_OPTS=" local"
 
+# Additional network device
+#RVM_QEMU_COMMANDLINE="-netdev user,id=hostnet1,net=10.0.11.1/24 -device virtio-net-pci,netdev=hostnet1,id=net1,addr=0x11"
+
 #RVM_NOVIEWER
 
 #RVM_OSINFO=fedora-rawhide

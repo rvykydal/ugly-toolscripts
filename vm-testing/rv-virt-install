@@ -242,7 +242,7 @@ virt-install \
         --location ./${RVM_BOOT_ISO_COPY},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
         --disk none \
         --network none \
-        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16" \
+        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16 ${RVM_QEMU_COMMANDLINE}" \
         --extra-args "${RVM_EXTRA_ARGS}" \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
