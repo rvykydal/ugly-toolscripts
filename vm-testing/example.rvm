@@ -17,6 +17,10 @@ RVM_RAM=3500
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.systemd.debug_shell"
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.break=pre-pivot"
 
+# If we have to specify the repo (also in ks) we need to set the local inst.stage2 explicitly
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} inst.repo=http://download.eng.brq.redhat.com/rhel-10/nightly/RHEL-10/latest-RHEL-10.0/compose/BaseOS/x86_64/os/"
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} inst.stage2=hd:LABEL=rhel-10-x86_64"
+
 #RVM_KS="/home/rvykydal/work/kickstarts/ks.unattended.cfg"
 RVM_KS_FROM_HTTP=1
 #RVM_KS_FROM_FILE=1
