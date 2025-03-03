@@ -21,6 +21,9 @@ RVM_RAM=3500
 RVM_KS_FROM_HTTP=1
 #RVM_KS_FROM_FILE=1
 #RVM_KS_FROM_CDROM=1
+# Requires adding of the path to the file by the disk label
+#RVM_KS_FROM_BOOTISO=1
+#RVM_BOOTISO_LABEL="rhel-10-x86_64"
 
 RVM_DISKS="10G::"
 #RVM_DISKS="10G:: 2G::"

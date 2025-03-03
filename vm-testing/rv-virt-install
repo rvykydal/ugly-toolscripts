@@ -151,6 +151,14 @@ if [ ${RVM_KS_FROM_CDROM} ]; then
     KS_CDROM_OPTION="--disk path=./${KS_ISO},device=cdrom,readonly=on,shareable=on"
 fi
 
+if [ ${RVM_KS_FROM_BOOTISO} ]; then
+    echo "Passing kickstart '$RVM_KS' via boot iso CDROM './$KS_ISO'"
+    cp $RVM_KS ./${KS_FILE}
+    rm ${RVM_BOOT_ISO_COPY}
+    mkksiso  --ks ${KS_FILE} ${RVM_BOOT_ISO} ${RVM_BOOT_ISO_COPY}
+    EXTRA_KS_ARGS="inst.ks=hd:LABEL=${RVM_BOOTISO_LABEL}:/${KS_FILE}"
+fi
+
 MNT_DIR=rvm_mntdir
 
 # sudo mount -t nfs -oro,nfsvers=3,nolock 10.43.136.2:/mnt/data/users/rv/s2/rvm m
