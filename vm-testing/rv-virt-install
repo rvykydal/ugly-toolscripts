@@ -178,6 +178,15 @@ if [ ${RVM_STAGE2_FROM_NFS} ]; then
     STAGE2_ARG="--extra-args inst.stage2=nfs:${RVM_NFS_SERVER_ARG}"
 fi
 
+if [ ${RVM_STAGE2_FROM_ISO_BY_LABEL} ]; then
+    echo "Using stage2 from the iso identified by LABEL ${VOLUME_ID}"
+    if [ -z "${VOLUME_ID}" ]; then
+        echo "Volume id not found. Stopping."
+        exit 9
+    fi
+    STAGE2_ARG="--extra-args inst.stage2=hd:LABEL=${VOLUME_ID}"
+fi
+
 if [ ${RVM_UPDATES_IMG} ]; then
     UPDATES_IMG_NAME="updates.${RVM_CONFIG}${RVM_UPDATES_IMG_TAG}.img"
     UPDATES_IMG_URL="http://${RVM_HTTP_SERVER_UPD_GET}${UPDATES_IMG_NAME}"

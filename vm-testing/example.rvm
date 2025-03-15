@@ -36,6 +36,8 @@ RVM_DISKS="10G::"
 
 #RVM_STAGE2_FROM_NFS=reload
 #RVM_STAGE2_FROM_NFS=1
+#Add explicit inst.stage2 argument
+#RVM_STAGE2_FROM_ISO_BY_LABEL=1
 
 #RVM_UPDATES_IMG=refresh
 #RVM_UPDATES_IMG_TAG=1
