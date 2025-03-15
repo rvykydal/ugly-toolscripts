@@ -247,7 +247,26 @@ if [ ! -z ${RVM_INJECT_SCRIPT} ]; then
     INJECT_DIR_SCRIPT_ARG=" --initrd-inject ${RVM_INJECT_SCRIPT}"
 fi
 
-[ ! -z ${RVM_OSINFO} ] && OSINFO_ARG=" --osinfo ${RVM_OSINFO}"
+if [ -n "${RVM_LIVECD}" ]; then
+    if [ -z "${VOLUME_ID}" ]; then
+        echo "Volume id for LiveCD not found. Stopping."
+        exit 9
+    fi
+    LIVE_CD_ARGS="root=live:CDLABEL=${VOLUME_ID} rd.live.image quiet rhgb"
+fi
+
+
+if [ ! -z ${RVM_OSINFO} ]; then
+    if [ "${RVM_OSINFO}" == "fedora42" ]; then
+        if [ -n "${RVM_LIVECD}" ]; then
+            echo "RVM_OSINFO == fedora42 LiveCD - using new iso layout in --location"
+            LOCATION=",kernel=boot/x86_64/loader/linux,initrd=boot/x86_64/loader/initrd"
+        fi
+    else
+        LOCATION=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
+        OSINFO_ARG=" --osinfo ${RVM_OSINFO}"
+    fi
+fi
 
 virt-install \
         --name ${RVM_CONFIG} \
@@ -260,13 +279,14 @@ virt-install \
         --graphics vnc,listen=0.0.0.0 \
         --video virtio \
         --extra-args "inst.sshd inst.debug debug=1" \
-        --location ./${RVM_BOOT_ISO_COPY},kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img \
+        --location ./${RVM_BOOT_ISO_COPY}${LOCATION} \
         --disk none \
         --network none \
         --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16 ${RVM_QEMU_COMMANDLINE}" \
         --extra-args "${RVM_EXTRA_ARGS}" \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
+        --extra-args "${LIVE_CD_ARGS}" \
         ${KS_CDROM_OPTION} \
         ${STAGE2_ARG} \
         ${UPDATES_IMG_ARG} \

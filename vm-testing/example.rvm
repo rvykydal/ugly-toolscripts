@@ -57,3 +57,6 @@ RVM_DISKS="10G::"
 #RVM_NOVIEWER
 
 #RVM_OSINFO=fedora-rawhide
+#RVM_OSINFO=fedora42
+#
+#RVM_LIVECD=yes
