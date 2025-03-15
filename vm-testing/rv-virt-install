@@ -121,6 +121,9 @@ else
     cp ${RVM_BOOT_ISO} ${RVM_BOOT_ISO_COPY}
 fi
 
+VOLUME_ID=$(isoinfo -d -i ${RVM_BOOT_ISO_COPY} |  grep -oP 'Volume id: \K.*')
+echo "VOLUME_ID: ${VOLUME_ID}"
+
 KS_FILE="ks.${RVM_CONFIG}.cfg"
 
 if [ ${RVM_KS_FROM_FILE} ]; then
