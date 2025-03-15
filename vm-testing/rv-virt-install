@@ -13,6 +13,7 @@
 # virsh reboot
 # virsh stop
 # virsh destroy
+# virsh managedsave-remove # might be needed sometimes
 # virsh undefine
 # virsh undefine --remove-all-storage
 # virsh dumpxml
