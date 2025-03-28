@@ -34,6 +34,8 @@ RVM_DISKS="10G::"
 #RVM_DISKS="10G:rawhide-auto.qcow2:reuse-or-create"
 #RVM_DISKS="10G:rawhide-auto.qcow2:reuse"
 
+#RVM_CDROMS="/var/tmp/oemdrv.iso /var/tmp/another.iso"
+
 #RVM_STAGE2_FROM_NFS=reload
 #RVM_STAGE2_FROM_NFS=1
 #Add explicit inst.stage2 argument

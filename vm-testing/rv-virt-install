@@ -233,6 +233,16 @@ for disk in $RVM_DISKS; do
     DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=virtio,cache=unsafe "
 done
 
+CDROM_INDEX=0
+for iso in $RVM_CDROMS; do
+    localiso="edns-global.rvm.cdrom.${CDROM_INDEX}.iso"
+    cp ${iso} ${localiso}
+    CDROM_ARGS="${CDROM_ARGS} --disk path=${localiso},device=cdrom "
+    let INDEX=${INDEX}+1
+done
+
+
+
 if [ ! -z ${RVM_UEFI} ]; then
     UEFI_ARG="--boot uefi"
 fi
@@ -291,6 +301,7 @@ virt-install \
         ${STAGE2_ARG} \
         ${UPDATES_IMG_ARG} \
         ${DISKS_ARGS} \
+        ${CDROM_ARGS} \
         ${UEFI_ARG} \
         ${INJECT_DIR_TARBALL_ARG} \
         ${INJECT_DIR_SCRIPT_ARG} \
