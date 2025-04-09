@@ -31,6 +31,10 @@ dracut_stack = ['']
 backup_stack = []
 last_dracut_call = None
 
+def check_pep8(s):
+    if s:
+        return True
+
 def lsplit(line):
     timestamp = "TIMESTAMP N/A"
     process = "PROCESS N/A"
@@ -110,7 +114,7 @@ with open(filename) as f:
                         if function and function not in dracut_stack:
                             if function in backup_stack:
                                 idx = backup_stack.index(function)
-                                dracut_stack = backup_stack[:idx+1] 
+                                dracut_stack = backup_stack[:idx+1]
                                 backup_stack = []
                         else:
                             if function == "":
