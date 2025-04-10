@@ -100,6 +100,15 @@ if [[ $(virsh dominfo $RVM_CONFIG) ]]; then
         exit 0
     fi
 
+    if [ "$CMD" == "remove-saved" ]; then
+        echo "Removing saved '$RVM_CONFIG'"
+        virsh managedsave-remove $RVM_CONFIG
+        virsh destroy $RVM_CONFIG
+        virsh undefine $RVM_CONFIG --remove-all-storage ${nvram_arg}
+        exit 0
+    fi
+
+
     if [ "$CMD" == "force" ]; then
         echo "Removing '$RVM_CONFIG'"
         virsh destroy $RVM_CONFIG
