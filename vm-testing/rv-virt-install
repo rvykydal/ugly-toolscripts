@@ -274,7 +274,7 @@ if [ -n "${RVM_LIVECD}" ]; then
     LIVE_CD_ARGS="root=live:CDLABEL=${VOLUME_ID} rd.live.image quiet rhgb"
 fi
 
-
+LOCATION=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
 if [ ! -z ${RVM_OSINFO} ]; then
     if [ "${RVM_OSINFO}" == "fedora42" ]; then
         if [ -n "${RVM_LIVECD}" ]; then
@@ -282,8 +282,8 @@ if [ ! -z ${RVM_OSINFO} ]; then
             LOCATION=",kernel=boot/x86_64/loader/linux,initrd=boot/x86_64/loader/initrd"
         fi
     else
-        LOCATION=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
         OSINFO_ARG=" --osinfo ${RVM_OSINFO}"
+        LOCATION=
     fi
 fi
 
