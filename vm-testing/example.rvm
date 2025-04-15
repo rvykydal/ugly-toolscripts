@@ -22,14 +22,14 @@ RVM_RAM=3500
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} inst.stage2=hd:LABEL=rhel-10-x86_64"
 
 #RVM_KS="/home/rvykydal/work/kickstarts/ks.unattended.cfg"
-RVM_KS_FROM_HTTP=1
+#RVM_KS_FROM_HTTP=1
 #RVM_KS_FROM_FILE=1
 #RVM_KS_FROM_CDROM=1
 # Requires adding of the path to the file by the disk label
 #RVM_KS_FROM_BOOTISO=1
 #RVM_BOOTISO_LABEL="rhel-10-x86_64"
 
-RVM_DISKS="10G::"
+#RVM_DISKS="10G::"
 #RVM_DISKS="10G:: 2G::"
 #RVM_DISKS="10G:rawhide-auto.qcow2:reuse-or-create"
 #RVM_DISKS="10G:rawhide-auto.qcow2:reuse"
