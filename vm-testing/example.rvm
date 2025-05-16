@@ -31,6 +31,7 @@ RVM_RAM=3500
 
 #RVM_DISKS="10G::"
 #RVM_DISKS="10G:: 2G::"
+# Use with rv-virt-install example.rvm reuse-storage
 #RVM_DISKS="10G:rawhide-auto.qcow2:reuse-or-create"
 #RVM_DISKS="10G:rawhide-auto.qcow2:reuse"
 
