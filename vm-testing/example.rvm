@@ -1,6 +1,9 @@
 RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-fedora_rawhide.iso
 #RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel10.iso
 #RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-rhel9.iso
+# s390
+#RVM_LOCATION=",kernel=images/kernel.img,initrd=images/initrd.img"
+#RVM_BOOTISO_LABEL="rhel-10-x86_64"
 
 RVM_SSH_ADDR=127.0.0.73
 RVM_SSH_PORT=2273
