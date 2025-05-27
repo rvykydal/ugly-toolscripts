@@ -214,6 +214,7 @@ if [ ${RVM_UPDATES_IMG} ]; then
     UPDATES_IMG_ARG="--extra-args inst.updates=${UPDATES_IMG_URL}"
 fi
 
+DISK_BUS=${RVM_DISK_BUS:-virtio}
 for disk in $RVM_DISKS; do
     size=$(echo $disk | cut -d":" -f1)
     filename=$(echo $disk | cut -d":" -f2)
@@ -243,7 +244,7 @@ for disk in $RVM_DISKS; do
             qemu-img create -f qcow2 ${filename} ${size}
         fi
     fi
-    DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=virtio,cache=unsafe "
+    DISKS_ARGS="${DISKS_ARGS} --disk path=${filename},bus=${DISK_BUS},cache=unsafe "
 done
 
 CDROM_INDEX=0
@@ -278,7 +279,7 @@ if [ -n "${RVM_LIVECD}" ]; then
     LIVE_CD_ARGS="root=live:CDLABEL=${VOLUME_ID} rd.live.image quiet rhgb"
 fi
 
-if [ {RVM_LOCATION} ]; then
+if [ ${RVM_LOCATION} ]; then
     LOCATION=${RVM_LOCATION}
 else
     LOCATION=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
