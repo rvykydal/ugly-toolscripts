@@ -59,6 +59,17 @@ RVM_RAM=3500
 
 # Additional network device
 #RVM_QEMU_COMMANDLINE="-netdev user,id=hostnet1,net=10.0.11.1/24 -device virtio-net-pci,netdev=hostnet1,id=net1,addr=0x11"
+# disconnected:
+# DOES NOT WORK - no link property found
+#RVM_QEMU_COMMANDLINE="-netdev user,id=hostnet1,net=10.0.11.1/24 -device virtio-net-pci,netdev=hostnet1,id=net1,addr=0x11,link=down"
+# with qemu monitor (run in rd.break=cmdline)
+# connect with:
+# nc 127.0.0.1 55555
+# commands:
+# info network
+# set_link net1 on
+# set_link net1 off
+#RVM_QEMU_COMMANDLINE="-netdev user,id=hostnet1,net=10.0.11.1/24 -device virtio-net-pci,netdev=hostnet1,id=net1,addr=0x11 -monitor tcp:127.0.0.1:55555,server,nowait"
 
 #RVM_NOVIEWER
 
