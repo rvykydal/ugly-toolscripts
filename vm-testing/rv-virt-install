@@ -284,9 +284,9 @@ if [ ${RVM_LOCATION} ]; then
 else
     LOCATION=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
     if [ ! -z ${RVM_OSINFO} ]; then
-        if [ "${RVM_OSINFO}" == "fedora42" ]; then
+        if [[ "${RVM_OSINFO}" =~ ^fedora ]]; then
             if [ -n "${RVM_LIVECD}" ]; then
-                echo "RVM_OSINFO == fedora42 LiveCD - using new iso layout in --location"
+                echo "RVM_OSINFO == fedora* LiveCD - using new iso layout in --location"
                 LOCATION=",kernel=boot/x86_64/loader/linux,initrd=boot/x86_64/loader/initrd"
             fi
         else
