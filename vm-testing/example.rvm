@@ -47,7 +47,7 @@ RVM_RAM=3500
 
 #RVM_UPDATES_IMG=refresh
 #RVM_UPDATES_IMG_TAG=1
-#RVM_UPDATES_IMG_PATH=~/work/git/rvykydal/anaconda
+#RVM_UPDATES_IMG_PATH=./anaconda
 #RVM_UPDATES_IMG_CMD=scripts/makeupdates
 #RVM_UPDATES_IMG_CMD="git checkout edns-certs-initramfs; scripts/makeupdates"
 #RVM_PYKICKSTART_DIR=/home/rvykydal/work/features/edns-certs/pykickstart
