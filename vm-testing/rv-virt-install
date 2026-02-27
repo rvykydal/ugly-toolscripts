@@ -43,7 +43,9 @@ RANDOM_SSH_ADDR=127.0.0.${_RANDOM_N}
 RANDOM_SSH_PORT=22${_RANDOM_N}
 RVM_SSH_ADDR=${RVM_SSH_ADDR:-$RANDOM_SSH_ADDR}
 RVM_SSH_PORT=${RVM_SSH_PORT:-$RANDOM_SSH_PORT}
-
+# forward anaconda webui / cockpit ports
+RVM_COCKPIT_PORT=${RVM_COCKPIT_PORT:-9091}
+RVM_COCKPIT_BRIDGE_PORT=${RVM_COCKPIT_BRIDGE_PORT:-80}
 
 RVM_HTTP_SERVER_KS_SCP=${RVM_HTTP_SERVER_KS_SCP:-10.43.136.2:/mnt/data/users/rv/ks/}
 RVM_HTTP_SERVER_KS_GET=${RVM_HTTP_SERVER_KS_GET:-10.43.136.2/users/rv/ks/}
@@ -310,7 +312,7 @@ virt-install \
         --location ./${RVM_BOOT_ISO_COPY}${LOCATION} \
         --disk none \
         --network none \
-        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_SSH_PORT}-:22 -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16 ${RVM_QEMU_COMMANDLINE}" \
+        --qemu-commandline="-netdev user,id=hostnet0,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_SSH_PORT}-:22,hostfwd=tcp:${RVM_SSH_ADDR}:${RVM_COCKPIT_PORT}-:${RVM_COCKPIT_BRIDGE_PORT} -device virtio-net-pci,netdev=hostnet0,id=net0,addr=0x16 ${RVM_QEMU_COMMANDLINE}" \
         --extra-args "${RVM_EXTRA_ARGS}" \
         --initrd-inject "./${KS_FILE}" \
         --extra-args "${EXTRA_KS_ARGS}" \
