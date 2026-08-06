@@ -10,7 +10,7 @@ RVM_SSH_PORT=2273
 RVM_LOGS_CMD="journalctl -a > /tmp/jctl.log"
 RVM_RAM=3500
 
-#RVM_UEFI=yes
+RVM_UEFI=yes
 
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} ip=dhcp"
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.debug"
