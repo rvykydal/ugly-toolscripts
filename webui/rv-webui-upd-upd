@@ -1,12 +1,16 @@
 #!/bin/bash
 
+# To add files to the filesystem just have updates directory with the files in
+# the anaconda repository before running the script
+
 set -x
 
-ANACONDA_REPO=/home/rvykydal/work/git/rvykydal/anaconda
-ANACONDA_UPDATES=${ANACONDA_REPO}/updates.img
+LOCAL_ANACONDA_REPO=$(realpath ../anaconda)
+RV_UPD_ANACONDA_REPO=${RV_UPD_ANACONDA_REPO:-$LOCAL_ANACONDA_REPO}
+ANACONDA_UPDATES=${RV_UPD_ANACONDA_REPO}/updates.img
 WORK_DIR=updupd
 
-pushd ${ANACONDA_REPO}
+pushd ${RV_UPD_ANACONDA_REPO}
 scripts/makeupdates
 popd
 
@@ -20,5 +24,5 @@ gzip -dc ../updates.webui.img | cpio -id
 tree . > ../tree.updates.webui.img.txt
 gzip -dc ../updates.anaconda.img | cpio -idu
 tree . > ../tree.updates.img.txt
-find . | cpio -c -o | gzip -9cv > ../updates.img
+find . | cpio -c -o | gzip -9cv > ../updates-fedora-rawhide.img
 popd
