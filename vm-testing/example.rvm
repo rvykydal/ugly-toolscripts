@@ -73,6 +73,7 @@ RVM_UEFI=yes
 
 #RVM_NOVIEWER
 
+# For RVM_LIVECD make sure RVM_OSVINFO is defined
 #RVM_OSINFO=fedora-rawhide
 #RVM_OSINFO=fedora42
 #
