@@ -8,7 +8,7 @@ RVM_BOOT_ISO=/home/rvykydal/work/git/rvykydal/kickstart-tests/data/images/boot-f
 RVM_SSH_ADDR=127.0.0.73
 RVM_SSH_PORT=2273
 RVM_LOGS_CMD="journalctl -a > /tmp/jctl.log"
-RVM_RAM=3500
+RVM_RAM=5000
 
 RVM_UEFI=yes
 
