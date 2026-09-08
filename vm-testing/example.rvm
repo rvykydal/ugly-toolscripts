@@ -10,6 +10,7 @@ RVM_SSH_PORT=2273
 RVM_LOGS_CMD="journalctl -a > /tmp/jctl.log"
 RVM_RAM=5000
 
+# NOTE: didn't work for Fedora Silverblue
 RVM_UEFI=yes
 
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} ip=dhcp"
