@@ -20,6 +20,8 @@ RVM_UEFI=yes
 # Shell in dracut on tty9
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.systemd.debug_shell"
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.break=pre-pivot"
+# 10 secs before dropping into shell
+#RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} rd.retry=10"
 
 # If we have to specify the repo (also in ks) we need to set the local inst.stage2 explicitly
 #RVM_EXTRA_ARGS="${RVM_EXTRA_ARGS} inst.repo=http://download.eng.brq.redhat.com/rhel-10/nightly/RHEL-10/latest-RHEL-10.0/compose/BaseOS/x86_64/os/"
